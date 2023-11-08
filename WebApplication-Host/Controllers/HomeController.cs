@@ -30,23 +30,13 @@ namespace WebApplication_Host.Controllers
 
         public IActionResult Index()
         {
+            var client = new RestClient("https://api.trongrid.io/");
 
-
-            var client = new RestClient("https://api.trongrid.io/v1/accounts/TFyxcPwmSrpXLt7hWbBbdpNbhQBHxa43au/transactions/trc20?contract_address=TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t");
-
-            var request = new RestRequest(Method.GET);
+            var request = new RestRequest("v1/accounts/TFyxcPwmSrpXLt7hWbBbdpNbhQBHxa43au/transactions/trc20?contract_address=TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t", Method.Get);
 
             request.AddHeader("Accept", "application/json");
 
-            IRestResponse response = client.Execute(request);
-
-
-
-
-
-
-
-
+            var response = client.Execute(request);
 
             var key = TronECKey.GenerateKey(TronNetwork.MainNet);
 
