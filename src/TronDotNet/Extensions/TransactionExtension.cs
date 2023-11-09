@@ -1,12 +1,7 @@
 ﻿using Google.Protobuf;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TronDotNet.Crypto;
 
-namespace TronDotNet
+namespace TronDotNet.Extensions
 {
     public static class TransactionExtension
     {
@@ -16,6 +11,5 @@ namespace TronDotNet
 
             return txid;
         }
-
     }
 }

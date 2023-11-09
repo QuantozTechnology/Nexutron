@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Nethereum.Signer.Crypto;
 using TronDotNet.Crypto;
+using TronDotNet.Extensions;
 
 namespace TronDotNet
 {
@@ -31,16 +29,16 @@ namespace TronDotNet
             _network = network;
         }
 
-        internal TronECKey(TronNetwork network)
-        {
-            _ecKey = new ECKey();
-            _network = network;
-        }
+        // internal TronECKey(TronNetwork network)
+        // {
+        //     _ecKey = new ECKey();
+        //     _network = network;
+        // }
 
-        public static TronECKey GenerateKey(TronNetwork network)
-        {
-            return new TronECKey(network);
-        }
+        // public static TronECKey GenerateKey(TronNetwork network)
+        // {
+        //     return new TronECKey(network);
+        // }
 
         internal byte GetPublicAddressPrefix()
         {
@@ -99,8 +97,7 @@ namespace TronDotNet
 
         public byte[] GetPubKey()
         {
-            return _ecKey.GetPubKey();
+            return _ecKey.GetPubKey(true);
         }
-
     }
 }

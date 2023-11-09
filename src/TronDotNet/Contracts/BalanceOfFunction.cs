@@ -1,4 +1,4 @@
-﻿using TronDotNet.ABI.FunctionEncoding.Attributes;
+﻿using Nethereum.ABI.FunctionEncoding.Attributes;
 
 namespace TronDotNet.Contracts
 {

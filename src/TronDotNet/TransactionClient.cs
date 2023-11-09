@@ -1,12 +1,13 @@
 ﻿using Google.Protobuf;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using TronDotNet.Crypto;
+using Nethereum.Hex.HexConvertors.Extensions;
+using Nethereum.Signer.Crypto;
 using TronDotNet.Protocol;
+using Nethereum.Util;
+using TronDotNet.Crypto;
+using TronDotNet.Extensions;
 
 namespace TronDotNet
 {

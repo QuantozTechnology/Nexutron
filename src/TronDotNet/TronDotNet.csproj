@@ -16,9 +16,18 @@ TronDotNet makes it easy to build TRON applications with .net.</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TronDotNet.ABI\TronDotNet.ABI.csproj" />
-    <ProjectReference Include="..\TronDotNet.Crypto\TronDotNet.Crypto.csproj" />
+<!--    <ProjectReference Include="..\TronDotNet.ABI\TronDotNet.ABI.csproj" />-->
+<!--    <ProjectReference Include="..\TronDotNet.Crypto\TronDotNet.Crypto.csproj" />-->
     <ProjectReference Include="..\TronDotNet.Protocol\TronDotNet.Protocol.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NBitcoin" Version="7.0.31" />
+    <PackageReference Include="Nethereum.ABI" Version="4.17.1" />
+    <PackageReference Include="Nethereum.Signer" Version="4.17.1" />
+    <PackageReference Include="Nethereum.Contracts" Version="4.17.1" />
+    <PackageReference Include="Nethereum.Hex" Version="4.17.1" />
+    <PackageReference Include="Nethereum.Util" Version="4.17.1" />
   </ItemGroup>
 
 </Project>

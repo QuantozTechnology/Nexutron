@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using TronDotNet;
 using TronDotNet.Contracts;
 using TronDotNet.Crypto;
+using TronDotNet.Extensions;
 using TronDotNet.Protocol;
 
 namespace TestTronDotNet
@@ -23,12 +24,12 @@ namespace TestTronDotNet
         public static void GenerateWalletOffline()
         {
 
-            var key = TronECKey.GenerateKey(TronNetwork.MainNet);
+            var key = TronECKeyGenerator.GenerateKey(TronNetwork.MainNet);
 
             var address = key.GetPublicAddress();
 
             Console.WriteLine(address);
-            
+
         }
 
 

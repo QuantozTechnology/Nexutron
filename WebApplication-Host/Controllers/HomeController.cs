@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TronDotNet;
 using TronDotNet.Contracts;
+using TronDotNet.Extensions;
 using WebApplication_Host.Models;
 
 namespace WebApplication_Host.Controllers
@@ -38,7 +39,7 @@ namespace WebApplication_Host.Controllers
 
             var response = client.Execute(request);
 
-            var key = TronECKey.GenerateKey(TronNetwork.MainNet);
+            var key = TronECKeyGenerator.GenerateKey(TronNetwork.MainNet);
 
             var address = key.GetPublicAddress();
 

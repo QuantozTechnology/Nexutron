@@ -1,19 +1,14 @@
 ﻿using Google.Protobuf;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Numerics;
-using System.Text;
 using System.Threading.Tasks;
-using TronDotNet.ABI;
-using TronDotNet.ABI.FunctionEncoding;
-using TronDotNet.ABI.Model;
+using Nethereum.ABI.FunctionEncoding;
+using Nethereum.ABI.Model;
+using Nethereum.Contracts;
+using Nethereum.Hex.HexConvertors.Extensions;
 using TronDotNet.Accounts;
 using TronDotNet.Crypto;
+using TronDotNet.Extensions;
 using TronDotNet.Protocol;
 
 namespace TronDotNet.Contracts

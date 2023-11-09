@@ -2,12 +2,9 @@
 using Grpc.Core;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TronDotNet.Accounts;
 using TronDotNet.Crypto;
+using TronDotNet.Extensions;
 using TronDotNet.Protocol;
 
 namespace TronDotNet
@@ -32,7 +29,7 @@ namespace TronDotNet
 
         public ITronAccount GenerateAccount()
         {
-            var tronKey = TronECKey.GenerateKey(_options.Value.Network);
+            var tronKey = TronECKeyGenerator.GenerateKey(_options.Value.Network);
             return new TronAccount(tronKey);
         }
 
