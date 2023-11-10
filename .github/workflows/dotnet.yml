@@ -43,7 +43,9 @@ jobs:
           echo "CommitsSinceVersionSource: ${{ steps.gitversion.outputs.CommitsSinceVersionSource }}"
 
       - name: Build and Pack NuGet package
-        run: dotnet pack src/TronDotNet/TronDotNet.csproj -p:Version='${{ steps.gitversion.outputs.SemVer }}' -c Release
+        run: |
+           dotnet build src/TronDotNet/TronDotNet.csproj -c Release
+           dotnet pack src/TronDotNet/TronDotNet.csproj -p:Version='${{ steps.gitversion.outputs.SemVer }}' -c Release
       - name: Upload NuGet package to GitHub
         uses: actions/upload-artifact@v3
         with:
