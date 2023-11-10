@@ -8,9 +8,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using TronDotNet;
-using TronDotNet.Contracts;
-using TronDotNet.Extensions;
+using Nexutron;
+using Nexutron.Contracts;
+using Nexutron.Extensions;
 using WebApplication_Host.Models;
 
 namespace WebApplication_Host.Controllers

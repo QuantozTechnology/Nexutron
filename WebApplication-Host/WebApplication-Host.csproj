@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\TronDotNet\TronDotNet.csproj" />
+    <ProjectReference Include="..\src\Nexutron\Nexutron.csproj" />
   </ItemGroup>
 
 </Project>

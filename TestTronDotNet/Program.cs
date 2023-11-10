@@ -3,11 +3,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
-using TronDotNet;
-using TronDotNet.Contracts;
-using TronDotNet.Crypto;
-using TronDotNet.Extensions;
-using TronDotNet.Protocol;
+using Nexutron;
+using Nexutron.Contracts;
+using Nexutron.Crypto;
+using Nexutron.Extensions;
+using Nexutron.Protocol;
 
 namespace TestTronDotNet
 {

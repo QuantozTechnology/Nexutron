@@ -10,10 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\TronDotNet.ABI\TronDotNet.ABI.csproj" />
-    <ProjectReference Include="..\src\TronDotNet.Crypto\TronDotNet.Crypto.csproj" />
-    <ProjectReference Include="..\src\TronDotNet.Protocol\TronDotNet.Protocol.csproj" />
-    <ProjectReference Include="..\src\TronDotNet\TronDotNet.csproj" />
+    <ProjectReference Include="..\src\Nexutron.Protocol\Nexutron.Protocol.csproj" />
+    <ProjectReference Include="..\src\Nexutron\Nexutron.csproj" />
   </ItemGroup>
 
 </Project>
