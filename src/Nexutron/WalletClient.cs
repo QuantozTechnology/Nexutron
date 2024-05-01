@@ -1,10 +1,8 @@
 ﻿using Google.Protobuf;
 using Grpc.Core;
 using Microsoft.Extensions.Options;
-using System;
 using Nexutron.Accounts;
-using Nexutron.Crypto;
-using Nexutron.Extensions;
+using Nexutron.Helpers;
 using Nexutron.Protocol;
 
 namespace Nexutron
@@ -29,13 +27,12 @@ namespace Nexutron
 
         public ITronAccount GenerateAccount()
         {
-            var tronKey = TronECKeyGenerator.GenerateKey(_options.Value.Network);
-            return new TronAccount(tronKey);
+            return AccountHelper.GenerateAccount(_options.Value.Network);
         }
 
         public ITronAccount GetAccount(string privateKey)
         {
-            return new TronAccount(privateKey, _options.Value.Network);
+            return AccountHelper.GetAccount(privateKey, _options.Value.Network);
         }
 
         public WalletSolidity.WalletSolidityClient GetSolidityProtocol()
@@ -48,43 +45,12 @@ namespace Nexutron
 
         public ByteString ParseAddress(string address)
         {
-            if (string.IsNullOrWhiteSpace(address)) throw new ArgumentNullException(nameof(address));
-
-            byte[] raw;
-            if (address.StartsWith("T"))
-            {
-                raw = Base58Encoder.DecodeFromBase58Check(address);
-            }
-            else if (address.StartsWith("41"))
-            {
-                raw = address.HexToByteArray();
-            }
-            else if (address.StartsWith("0x"))
-            {
-                raw = address[2..].HexToByteArray();
-            }
-            else
-            {
-                try
-                {
-                    raw = address.HexToByteArray();
-                }
-                catch (Exception)
-                {
-                    throw new ArgumentException($"Invalid address: " + address);
-                }
-            }
-            return ByteString.CopyFrom(raw);
+            return AccountHelper.ParseAddress(address);
         }
 
         public Metadata GetHeaders()
         {
-            var headers = new Metadata
-            {
-                { "TRON-PRO-API-KEY", _options.Value.ApiKey }
-            };
-
-            return headers;
+            return WalletHelper.GetHeaders(_options.Value.ApiKey);
         }
     }
 }

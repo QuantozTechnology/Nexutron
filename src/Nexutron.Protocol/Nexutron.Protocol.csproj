@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<Version>0.5.0</Version>
 		<Authors>Miladsoft</Authors>
 		<Company>SeniorBlockchain</Company>
 		<Description>TronNet.Protocol</Description>
+		<IncludeHttpRuleProtos>true</IncludeHttpRuleProtos>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/miladsoft/TronNet</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/miladsoft/TronNet</RepositoryUrl>
@@ -15,16 +16,17 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Google.Api.CommonProtos" Version="2.12.0" />
-		<PackageReference Include="Google.Protobuf" Version="3.25.0" />
-		<PackageReference Include="Google.Protobuf.Tools" Version="3.25.0" />
+		<PackageReference Include="Google.Api.CommonProtos" Version="2.15.0" />
+		<PackageReference Include="Google.Api.Gax" Version="4.8.0" />
+		<PackageReference Include="Google.Protobuf" Version="3.26.1" />
+		<PackageReference Include="Google.Protobuf.Tools" Version="3.26.1" />
 		<PackageReference Include="Grpc" Version="2.46.6" />
-		<PackageReference Include="Grpc.Net.ClientFactory" Version="2.59.0" />
-		<PackageReference Include="Grpc.Tools" Version="2.59.0">
+		<PackageReference Include="Grpc.Net.ClientFactory" Version="2.62.0" />
+		<PackageReference Include="Grpc.Tools" Version="2.62.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="NBitcoin.Secp256k1" Version="3.1.1" />
+		<PackageReference Include="NBitcoin.Secp256k1" Version="3.1.4" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -45,8 +47,5 @@
 		<Protobuf Include="Protos\core\Discover.proto" GrpcServices="Client" />
 		<Protobuf Include="Protos\core\Tron.proto" GrpcServices="Client" />
 		<Protobuf Include="Protos\core\TronInventoryItems.proto" GrpcServices="Client" />
-		<Protobuf Include="Protos\google\api\annotations.proto" GrpcServices="Client" />
-		<Protobuf Include="Protos\google\api\http.proto" GrpcServices="Client" />
-		<Protobuf Include="Protos\google\protobuf\descriptor.proto" GrpcServices="Client" />
 	</ItemGroup>
 </Project>

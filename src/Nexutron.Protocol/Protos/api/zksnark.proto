@@ -3,8 +3,8 @@ package protocol;
 
 import "Protos/core/Tron.proto";
 
-option go_package = "github.com/tronprotocol/grpc-gateway/api";
 option csharp_namespace = "Nexutron.Protocol";
+option go_package = "github.com/tronprotocol/grpc-gateway/api";
 
 service TronZksnark {
   rpc CheckZksnarkProof (ZksnarkRequest) returns (ZksnarkResponse) {
@@ -26,7 +26,3 @@ message ZksnarkResponse {
 
   Code code = 1;
 }
-
-
-
-

@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package protocol;
 
-
 option csharp_namespace = "Nexutron.Protocol";
 option go_package = "github.com/tronprotocol/grpc-gateway/core";
 
@@ -10,6 +9,7 @@ message Endpoint {
   bytes address = 1;
   int32 port = 2;
   bytes nodeId = 3;
+  bytes addressIpv6 = 4;
 }
 
 message PingMessage {
