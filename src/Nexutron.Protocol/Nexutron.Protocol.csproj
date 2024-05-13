@@ -47,5 +47,7 @@
 		<Protobuf Include="Protos\core\Discover.proto" GrpcServices="Client" />
 		<Protobuf Include="Protos\core\Tron.proto" GrpcServices="Client" />
 		<Protobuf Include="Protos\core\TronInventoryItems.proto" GrpcServices="Client" />
+		<Protobuf Include="Protos\google\api\annotations.proto" GrpcServices="Client" />
+		<Protobuf Include="Protos\google\api\http.proto" GrpcServices="Client" />
 	</ItemGroup>
 </Project>

@@ -38,8 +38,11 @@ namespace Nexutron.Helpers
             contract.Type = Transaction.Types.Contract.Types.ContractType.TransferContract;
             transaction.RawData = new Transaction.Types.raw();
             transaction.RawData.Contract.Add(contract);
-            transaction.RawData.Timestamp = DateTime.Now.Ticks;
-            transaction.RawData.Expiration = newestBlock.BlockHeader.RawData.Timestamp + expirationTime;// 10 * 60 * 60 * 1000;
+            // TODO: Memo
+            // transaction.RawData.Data = ByteString.FromBase64("memo");
+
+            transaction.RawData.Timestamp = DateTime.Now.Ticks; // TODO: Should this be ticks? Seems maybe too large
+            transaction.RawData.Expiration = newestBlock.BlockHeader.RawData.Timestamp + expirationTime; // 10 * 60 * 60 * 1000;
             var blockHeight = newestBlock.BlockHeader.RawData.Number;
             var blockHash = Sha256Sm3Hash.Of(newestBlock.BlockHeader.RawData.ToByteArray()).GetBytes();
 
