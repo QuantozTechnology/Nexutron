@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Nexutron
 {
-    public class TronDotNetOptions
+    public class NexutronOptions
     {
         public TronNetwork Network { get; set; }
         public GrpcChannelOption Channel { get; set; }

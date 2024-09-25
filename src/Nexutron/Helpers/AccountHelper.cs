@@ -49,5 +49,20 @@ namespace Nexutron.Helpers
             }
             return ByteString.CopyFrom(raw);
         }
+
+        public static string GetBase58Address(ByteString address)
+        {
+            return Base58Encoder.EncodeFromHex(address.ToByteArray().ToHex(), 0x41);
+        }
+
+        public static string GetBase58Address(string address)
+        {
+            return Base58Encoder.EncodeFromHex(ParseAddress(address).ToByteArray().ToHex(), 0x41);
+        }
+
+        public static string GetHexAddress(ByteString address)
+        {
+            return address.ToByteArray().ToHex();
+        }
     }
 }

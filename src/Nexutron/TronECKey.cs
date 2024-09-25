@@ -48,7 +48,7 @@ namespace Nexutron
             }
             else
             {
-             return   0xa0;
+                return 0xa0;
             }
 
         }

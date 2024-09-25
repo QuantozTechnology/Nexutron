@@ -13,14 +13,14 @@ namespace Nexutron
     class TronClient : ITronClient
     {
         private readonly ILogger<TronClient> _logger;
-        private readonly IOptions<TronDotNetOptions> _options;
+        private readonly IOptions<NexutronOptions> _options;
         private readonly IGrpcChannelClient _channelClient;
         private readonly IWalletClient _walletClient;
         private readonly ITransactionClient _transactionClient;
 
         public TronNetwork TronNetwork => _options.Value.Network;
 
-        public TronClient(ILogger<TronClient> logger, IOptions<TronDotNetOptions> options, IGrpcChannelClient channelClient, IWalletClient walletClient, ITransactionClient transactionClient)
+        public TronClient(ILogger<TronClient> logger, IOptions<NexutronOptions> options, IGrpcChannelClient channelClient, IWalletClient walletClient, ITransactionClient transactionClient)
         {
             _logger = logger;
             _options = options;
@@ -30,7 +30,7 @@ namespace Nexutron
         }
         public IGrpcChannelClient GetChannel()
         {
-            return _channelClient; 
+            return _channelClient;
         }
         public IWalletClient GetWallet()
         {

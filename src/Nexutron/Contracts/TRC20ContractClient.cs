@@ -55,7 +55,7 @@ namespace Nexutron.Contracts
             var contractAddressBytes = Base58Encoder.DecodeFromBase58Check(contractAddress);
             var callerAddressBytes = Base58Encoder.DecodeFromBase58Check(toAddress);
             var ownerAddressBytes = Base58Encoder.DecodeFromBase58Check(ownerAccount.Address);
-            var wallet = _walletClient.GetProtocol();
+            var wallet = _walletClient.GetWalletClient();
             var functionABI = ABITypedRegistry.GetFunctionABI<TransferFunction>();
             try
             {
@@ -131,7 +131,7 @@ namespace Nexutron.Contracts
         {
             var contractAddressBytes = Base58Encoder.DecodeFromBase58Check(contractAddress);
             var ownerAddressBytes = Base58Encoder.DecodeFromBase58Check(ownerAccount.Address);
-            var wallet = _walletClient.GetProtocol();
+            var wallet = _walletClient.GetWalletClient();
             var functionABI = ABITypedRegistry.GetFunctionABI<BalanceOfFunction>();
             try
             {

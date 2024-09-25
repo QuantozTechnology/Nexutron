@@ -10,19 +10,18 @@ namespace Nexutron
     class WalletClient : IWalletClient
     {
         private readonly IGrpcChannelClient _channelClient;
-        private readonly IOptions<TronDotNetOptions> _options;
+        private readonly IOptions<NexutronOptions> _options;
 
-        public WalletClient(IGrpcChannelClient channelClient, IOptions<TronDotNetOptions> options)
+        public WalletClient(IGrpcChannelClient channelClient, IOptions<NexutronOptions> options)
         {
             _channelClient = channelClient;
             _options = options;
         }
 
-        public Wallet.WalletClient GetProtocol()
+        public Wallet.WalletClient GetWalletClient()
         {
             var channel = _channelClient.GetProtocol();
-            var wallet = new Wallet.WalletClient(channel);
-            return wallet;
+            return WalletClientHelper.GetWalletClient(channel);
         }
 
         public ITronAccount GenerateAccount()
@@ -35,12 +34,10 @@ namespace Nexutron
             return AccountHelper.GetAccount(privateKey, _options.Value.Network);
         }
 
-        public WalletSolidity.WalletSolidityClient GetSolidityProtocol()
+        public WalletSolidity.WalletSolidityClient GetSolidityClient()
         {
             var channel = _channelClient.GetSolidityProtocol();
-            var wallet = new WalletSolidity.WalletSolidityClient(channel);
-
-            return wallet;
+            return WalletClientHelper.GetSolidityClient(channel);
         }
 
         public ByteString ParseAddress(string address)

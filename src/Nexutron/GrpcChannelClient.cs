@@ -12,9 +12,9 @@ namespace Nexutron
     class GrpcChannelClient : IGrpcChannelClient
     {
         private readonly ILogger<GrpcChannelClient> _logger;
-        private readonly IOptions<TronDotNetOptions> _options;
+        private readonly IOptions<NexutronOptions> _options;
 
-        public GrpcChannelClient(ILogger<GrpcChannelClient> logger, IOptions<TronDotNetOptions> options)
+        public GrpcChannelClient(ILogger<GrpcChannelClient> logger, IOptions<NexutronOptions> options)
         {
             _logger = logger;
             _options = options;
@@ -22,11 +22,11 @@ namespace Nexutron
 
         public Channel GetProtocol()
         {
-            return new Channel(_options.Value.Channel.Host, _options.Value.Channel.Port, ChannelCredentials.Insecure);
+            return Helpers.GrpcChannelClientHelpers.GetProtocol(_options.Value.Channel.Host, _options.Value.Channel.Port);
         }
         public Channel GetSolidityProtocol()
         {
-            return new Channel(_options.Value.SolidityChannel.Host, _options.Value.SolidityChannel.Port, ChannelCredentials.Insecure);
+            return Helpers.GrpcChannelClientHelpers.GetSolidityProtocol(_options.Value.SolidityChannel.Host, _options.Value.SolidityChannel.Port);
         }
     }
 

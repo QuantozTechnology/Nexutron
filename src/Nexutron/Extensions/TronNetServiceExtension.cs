@@ -16,9 +16,9 @@ namespace Nexutron
         //    return builder;
         //}
 
-        public static IServiceCollection AddTronDotNet(this IServiceCollection services, Action<TronDotNetOptions> setupAction)
+        public static IServiceCollection AddTronDotNet(this IServiceCollection services, Action<NexutronOptions> setupAction)
         {
-            var options = new TronDotNetOptions();
+            var options = new NexutronOptions();
 
             setupAction(options);
 

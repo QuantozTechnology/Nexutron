@@ -7,8 +7,8 @@ namespace Nexutron
 {
     public interface IWalletClient
     {
-        Wallet.WalletClient GetProtocol();
-        WalletSolidity.WalletSolidityClient GetSolidityProtocol();
+        Wallet.WalletClient GetWalletClient();
+        WalletSolidity.WalletSolidityClient GetSolidityClient();
         ITronAccount GenerateAccount();
         ITronAccount GetAccount(string privateKey);
         ByteString ParseAddress(string address);

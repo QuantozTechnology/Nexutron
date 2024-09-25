@@ -10,7 +10,7 @@ namespace Nexutron.Helpers
 {
     public static class TransactionHelper
     {
-        public static Transaction CreateTransaction(BlockExtention newestBlock, string from, string to, long amount, long expirationTime)
+        public static Transaction CreateTransaction(BlockExtention newestBlock, string from, string to, long amount, DateTime timestamp, long expirationTime, string memo = null)
         {
             var fromAddress = AccountHelper.ParseAddress(from);
             var toAddress = AccountHelper.ParseAddress(to);
@@ -38,11 +38,17 @@ namespace Nexutron.Helpers
             contract.Type = Transaction.Types.Contract.Types.ContractType.TransferContract;
             transaction.RawData = new Transaction.Types.raw();
             transaction.RawData.Contract.Add(contract);
-            // TODO: Memo
-            // transaction.RawData.Data = ByteString.FromBase64("memo");
 
-            transaction.RawData.Timestamp = DateTime.Now.Ticks; // TODO: Should this be ticks? Seems maybe too large
-            transaction.RawData.Expiration = newestBlock.BlockHeader.RawData.Timestamp + expirationTime; // 10 * 60 * 60 * 1000;
+            if (!string.IsNullOrWhiteSpace(memo))
+            {
+                transaction.RawData.Data = ByteString.FromBase64(memo);
+            }
+
+            // milliseconds (since unix epoch)
+            var currentTimestamp = (timestamp.Ticks - DateTime.UnixEpoch.Ticks) / 10_000;
+
+            transaction.RawData.Timestamp = currentTimestamp; // TODO: Should this be ticks? Seems maybe too large 638598441372523783
+            transaction.RawData.Expiration = currentTimestamp + expirationTime; // 60 * 60 * 1000; 1724247336000
             var blockHeight = newestBlock.BlockHeader.RawData.Number;
             var blockHash = Sha256Sm3Hash.Of(newestBlock.BlockHeader.RawData.ToByteArray()).GetBytes();
 
