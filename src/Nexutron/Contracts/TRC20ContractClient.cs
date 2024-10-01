@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Nethereum.ABI.FunctionEncoding;
 using Nethereum.ABI.Model;
 using Nethereum.Contracts;
-using Nethereum.Hex.HexConvertors.Extensions;
 using Nexutron.Accounts;
 using Nexutron.Crypto;
 using Nexutron.Extensions;
@@ -60,10 +59,6 @@ namespace Nexutron.Contracts
             try
             {
 
-                var contract = await wallet.GetContractAsync(new BytesMessage
-                {
-                    Value = ByteString.CopyFrom(contractAddressBytes),
-                }, headers: _walletClient.GetHeaders());
 
                 var toAddressBytes = new byte[20];
                 Array.Copy(callerAddressBytes, 1, toAddressBytes, 0, toAddressBytes.Length);
