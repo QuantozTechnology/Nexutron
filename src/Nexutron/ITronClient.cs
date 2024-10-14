@@ -9,7 +9,6 @@ namespace Nexutron
 {
     public interface ITronClient
     {
-        TronNetwork TronNetwork { get; }
         IGrpcChannelClient GetChannel();
         IWalletClient GetWallet();
         ITransactionClient GetTransaction();

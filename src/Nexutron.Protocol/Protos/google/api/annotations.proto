@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2015, Google Inc.
+// Copyright 2015 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ syntax = "proto3";
 package google.api;
 
 import "Protos/google/api/http.proto";
-import "Protos/google/protobuf/descriptor.proto";
+import "google/protobuf/descriptor.proto";
 
 option go_package = "google.golang.org/genproto/googleapis/api/annotations;annotations";
 option java_multiple_files = true;

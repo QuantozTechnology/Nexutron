@@ -92,7 +92,7 @@ namespace Nexutron.Crypto
         public static byte[] Hash(byte[] input)
         {
             byte[] hashBytes;
-            var hash = new System.Security.Cryptography.SHA256Managed();
+            var hash = System.Security.Cryptography.SHA256.Create();
             using var stream = new MemoryStream(input);
             try
             {
@@ -182,7 +182,7 @@ namespace Nexutron.Crypto
         {
             if (input.Length == 0)
             {
-                return new byte[0];
+                return [];
             }
 
 

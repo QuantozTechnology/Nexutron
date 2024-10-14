@@ -5,7 +5,6 @@ package protocol;
 option csharp_namespace = "Nexutron.Protocol";
 option go_package = "github.com/tronprotocol/grpc-gateway/core";
 
-
 message SmartContract {
   message ABI {
     message Entry {
@@ -16,6 +15,7 @@ message SmartContract {
         Event = 3;
         Fallback = 4;
         Receive = 5;
+        Error = 6;
       }
       message Param {
         bool indexed = 1;
@@ -52,6 +52,13 @@ message SmartContract {
   int64 origin_energy_limit = 8;
   bytes code_hash = 9;
   bytes trx_hash = 10;
+  int32 version = 11;
+}
+
+message ContractState {
+  int64 energy_usage = 1;
+  int64 energy_factor = 2;
+  int64 update_cycle = 3;
 }
 
 message CreateSmartContract {
@@ -90,4 +97,5 @@ message UpdateEnergyLimitContract {
 message SmartContractDataWrapper {
   SmartContract smart_contract = 1;
   bytes runtimecode = 2;
+  ContractState contract_state = 3;
 }

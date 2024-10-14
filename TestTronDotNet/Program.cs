@@ -1,13 +1,9 @@
-﻿using Google.Protobuf;
+﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using System;
-using System.Threading.Tasks;
 using Nexutron;
 using Nexutron.Contracts;
-using Nexutron.Crypto;
 using Nexutron.Extensions;
-using Nexutron.Protocol;
 
 namespace TestTronDotNet
 {
@@ -15,7 +11,8 @@ namespace TestTronDotNet
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello Tron World!");
+            Console.WriteLine("Hello NexuTron World!");
+
 
             TestContractTransation();
         }
@@ -24,7 +21,7 @@ namespace TestTronDotNet
         public static void GenerateWalletOffline()
         {
 
-            var key = TronECKeyGenerator.GenerateKey(TronNetwork.MainNet);
+            var key = TronECKeyGenerator.GenerateKey();
 
             var address = key.GetPublicAddress();
 
@@ -32,31 +29,31 @@ namespace TestTronDotNet
 
         }
 
+        public static void TestKeyGeneration()
+        {
+            // Should be TBDCyrZ1hT1PDDFf2yRABwPrFica5qqPUX
+            var key = new TronECKey("fd605fb953fcdabb952be161265a75b8a3ce1c0def2c7db72265f9db9a471be4");
+            Console.WriteLine(key.GetPublicAddress());
+        }
+
 
         public static void TestTrxTransation()
         {
-
-
             var walletPrivateKey = "62075119d64f17ebd3248df7a864cd84380fcb9e5771f0968af2167a25717bb2";
 
-
-
-            var ecKey = new TronECKey(walletPrivateKey, TronNetwork.MainNet);
+            var ecKey = new TronECKey(walletPrivateKey);
             var from = ecKey.GetPublicAddress();
             //Receiving wallet
             var to = "TH8fU6BLpU6EjqvZTWWSB1uhpEVxzT35Xj";
 
-
-            //Play 2 trx
+            //Pay 2 trx
             var amount = 2 * 1_000_000L;
 
             IServiceCollection services = new ServiceCollection();
             services.AddTronDotNet(x =>
             {
-                x.Network = TronNetwork.MainNet;
-                x.Channel = new GrpcChannelOption { Host = "47.252.19.181", Port = 50051 };
-                x.SolidityChannel = new GrpcChannelOption { Host = "47.252.19.181", Port = 50052 };
-                // x.ApiKey = "07rgc8e4-7as1-4d34-d334-fe40ai6gc542";
+                x.Channel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50051 };
+                x.SolidityChannel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50052 };
                 //I thought it was necessary to fill in, but it seems that it can be used without filling in
                 x.ApiKey = "apikey";
             });
@@ -81,9 +78,6 @@ namespace TestTronDotNet
             var result = transactionClient.BroadcastTransactionAsync(transactionSigned).Result;
             Console.WriteLine("-RESULT-");
             Console.WriteLine(JsonConvert.SerializeObject(result));
-
-
-
         }
 
 
@@ -92,16 +86,16 @@ namespace TestTronDotNet
         /// </summary>
         public static void TestContractTransation()
         {
-
             //The private key of the transmitter
             var walletPrivateKey = "62075119d64f17ebd3248df7a864cd84380fcb9e5771f0968af2167a25717bb2";
 
             IServiceCollection services = new ServiceCollection();
             services.AddTronDotNet(x =>
             {
-                x.Network = TronNetwork.MainNet;
-                x.Channel = new GrpcChannelOption { Host = "47.252.19.181", Port = 50051 };
-                x.SolidityChannel = new GrpcChannelOption { Host = "47.252.19.181", Port = 50052 };
+                x.Channel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50051 };
+                x.SolidityChannel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50052 };
+                // x.ApiKey = "07rgc8e4-7as1-4d34-d334-fe40ai6gc542";
+                //I thought it was necessary to fill in, but it seems that it can be used without filling in
                 x.ApiKey = "apikey";
             });
 
@@ -132,9 +126,6 @@ namespace TestTronDotNet
 
             Console.WriteLine("-- RESULT --");
             Console.WriteLine(JsonConvert.SerializeObject(result));
-
         }
-
-
     }
 }

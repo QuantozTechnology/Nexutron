@@ -9,24 +9,20 @@ namespace Nexutron
     {
         private readonly ECKey _ecKey;
         private string _publicAddress = null;
-        private readonly TronNetwork _network = TronNetwork.MainNet;
         private string _privateKeyHex = null;
-        public TronECKey(string privateKey, TronNetwork network)
+        public TronECKey(string privateKey)
         {
             _ecKey = new ECKey(privateKey.HexToByteArray(), true);
-            _network = network;
         }
 
-        public TronECKey(byte[] vch, bool isPrivate, TronNetwork network)
+        public TronECKey(byte[] vch, bool isPrivate)
         {
             _ecKey = new ECKey(vch, isPrivate);
-            _network = network;
         }
 
-        internal TronECKey(ECKey ecKey, TronNetwork network)
+        internal TronECKey(ECKey ecKey)
         {
             _ecKey = ecKey;
-            _network = network;
         }
 
         // internal TronECKey(TronNetwork network)
@@ -40,22 +36,14 @@ namespace Nexutron
         //     return new TronECKey(network);
         // }
 
-        internal byte GetPublicAddressPrefix()
+        internal static byte GetPublicAddressPrefix()
         {
-            if (_network == TronNetwork.MainNet)
-            {
-                return 0x41;
-            }
-            else
-            {
-             return   0xa0;
-            }
-
+            return 0x41;
         }
 
-        public static string GetPublicAddress(string privateKey, TronNetwork network = TronNetwork.MainNet)
+        public static string GetPublicAddress(string privateKey)
         {
-            var key = new TronECKey(privateKey.HexToByteArray(), true, network);
+            var key = new TronECKey(privateKey.HexToByteArray(), true);
 
             return key.GetPublicAddress();
         }
@@ -76,14 +64,8 @@ namespace Nexutron
             Array.Copy(address, 0, addressChecksum, 0, 21);
             Array.Copy(bytes, 0, addressChecksum, 21, 4);
 
-            if (_network == TronNetwork.MainNet)
-            {
-                _publicAddress = Base58Encoder.Encode(addressChecksum);
-            }
-            else
-            {
-                _publicAddress = addressChecksum.ToHex();
-            }
+            _publicAddress = Base58Encoder.Encode(addressChecksum);
+
             return _publicAddress;
         }
         public string GetPrivateKey()

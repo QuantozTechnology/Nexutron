@@ -10,9 +10,9 @@ namespace Nexutron
 	/// <summary>
 	/// This type supports the Fluorine infrastructure and is not intended to be used directly from your code.
 	/// http://java.sun.com/j2se/1.5.0/docs/api/java/nio/ByteBuffer.html
-	/// 
-	/// The following invariant holds for the mark, position, limit, and capacity values: 
-	/// 0 lte mark lte position lte limit lte capacity 
+	///
+	/// The following invariant holds for the mark, position, limit, and capacity values:
+	/// 0 lte mark lte position lte limit lte capacity
 	/// </summary>
 	public class ByteBuffer : Stream
 	{
@@ -32,27 +32,27 @@ namespace Nexutron
 
 		/// <summary>
 		/// Allocates a new byte buffer.
-		/// The new buffer's position will be zero, its limit will be its capacity, 
-		/// and its mark will be undefined. 
-		/// It will have a backing array, and its array offset will be zero. 
+		/// The new buffer's position will be zero, its limit will be its capacity,
+		/// and its mark will be undefined.
+		/// It will have a backing array, and its array offset will be zero.
 		/// </summary>
 		/// <param name="capacity"></param>
 		/// <returns></returns>
 		public static ByteBuffer Allocate(int capacity)
 		{
 			MemoryStream ms = new MemoryStream(capacity);
-            ByteBuffer buffer = new ByteBuffer(ms)
-            {
-                Limit = capacity
-            };
-            return buffer;
+			ByteBuffer buffer = new ByteBuffer(ms)
+			{
+				Limit = capacity
+			};
+			return buffer;
 		}
 
 		/// <summary>
 		/// Wraps a byte array into a buffer.
-		/// The new buffer will be backed by the given byte array; that is, modifications 
-		/// to the buffer will cause the array to be modified and vice versa. 
-		/// The new buffer's capacity will be array.length, its position will be offset, 
+		/// The new buffer will be backed by the given byte array; that is, modifications
+		/// to the buffer will cause the array to be modified and vice versa.
+		/// The new buffer's capacity will be array.length, its position will be offset,
 		/// its limit will be offset + length, and its mark will be undefined.
 		/// </summary>
 		/// <param name="array">Byte array to wrap.</param>
@@ -68,9 +68,9 @@ namespace Nexutron
 			return new ByteBuffer(ms);
 		}
 		/// <summary>
-		/// Wraps a byte array into a buffer. 
-		/// The new buffer will be backed by the given byte array; that is, modifications 
-		/// to the buffer will cause the array to be modified and vice versa. 
+		/// Wraps a byte array into a buffer.
+		/// The new buffer will be backed by the given byte array; that is, modifications
+		/// to the buffer will cause the array to be modified and vice versa.
 		/// The new buffer's capacity and limit will be array.length, its position will be zero,
 		/// and its mark will be undefined.
 		/// </summary>
@@ -97,7 +97,7 @@ namespace Nexutron
 			get { return (int)_stream.Capacity; }
 		}
 		/// <summary>
-		/// Returns this buffer's limit. 
+		/// Returns this buffer's limit.
 		/// </summary>
 		public int Limit
 		{
@@ -105,14 +105,14 @@ namespace Nexutron
 			set { _stream.SetLength(value); }
 		}
 		/// <summary>
-		/// Returns the number of elements between the current position and the limit. 
+		/// Returns the number of elements between the current position and the limit.
 		/// </summary>
 		public int Remaining
 		{
 			get { return this.Limit - (int)this.Position; }
 		}
 		/// <summary>
-		/// Tells whether there are any elements between the current position and the limit. 
+		/// Tells whether there are any elements between the current position and the limit.
 		/// </summary>
 		public bool HasRemaining
 		{
@@ -142,8 +142,8 @@ namespace Nexutron
 			_bookmark = -1;
 		}
 		/// <summary>
-		/// Resets this buffer's position to the previously-marked position. 
-		/// Invoking this method neither changes nor discards the mark's value. 
+		/// Resets this buffer's position to the previously-marked position.
+		/// Invoking this method neither changes nor discards the mark's value.
 		/// </summary>
 		public void Reset()
 		{
@@ -178,7 +178,7 @@ namespace Nexutron
 #endif
 
 		/// <summary>
-		/// Flips this buffer. The limit is set to the current position and then 
+		/// Flips this buffer. The limit is set to the current position and then
 		/// the position is set to zero. If the mark is defined then it is discarded.
 		/// </summary>
 		public void Flip()
@@ -206,15 +206,15 @@ namespace Nexutron
 		}
 		/// <summary>
 		/// Relative bulk put method.
-		/// 
-		/// This method transfers bytes into this buffer from the given source array. 
-		/// If there are more bytes to be copied from the array than remain in this buffer, 
-		/// that is, if length > remaining(), then no bytes are transferred and a 
-		/// BufferOverflowException is thrown. 
-		/// 
-		/// Otherwise, this method copies length bytes from the given array into this buffer, 
-		/// starting at the given offset in the array and at the current position of this buffer. 
-		/// The position of this buffer is then incremented by length. 
+		///
+		/// This method transfers bytes into this buffer from the given source array.
+		/// If there are more bytes to be copied from the array than remain in this buffer,
+		/// that is, if length > remaining(), then no bytes are transferred and a
+		/// BufferOverflowException is thrown.
+		///
+		/// Otherwise, this method copies length bytes from the given array into this buffer,
+		/// starting at the given offset in the array and at the current position of this buffer.
+		/// The position of this buffer is then incremented by length.
 		/// </summary>
 		/// <param name="src">The array from which bytes are to be read.</param>
 		/// <param name="offset">The offset within the array of the first byte to be read; must be non-negative and no larger than the array length.</param>
@@ -224,7 +224,7 @@ namespace Nexutron
 			_stream.Write(src, offset, length);
 		}
 		/// <summary>
-		/// This method transfers the entire content of the given source byte array into this buffer. 
+		/// This method transfers the entire content of the given source byte array into this buffer.
 		/// </summary>
 		/// <param name="src">The array from which bytes are to be read.</param>
 		public void Put(byte[] src)
@@ -254,14 +254,14 @@ namespace Nexutron
 		}
 
 		/// <summary>
-		/// This method transfers the bytes remaining in the given source buffer into this buffer. 
-		/// If there are more bytes remaining in the source buffer than in this buffer, 
-		/// that is, if src.remaining() > remaining(), then no bytes are transferred 
-		/// and a BufferOverflowException is thrown. 
-		/// 
-		/// Otherwise, this method copies n = src.remaining() bytes from the given buffer into this buffer, 
-		/// starting at each buffer's current position. The positions of both buffers are then 
-		/// incremented by n. 
+		/// This method transfers the bytes remaining in the given source buffer into this buffer.
+		/// If there are more bytes remaining in the source buffer than in this buffer,
+		/// that is, if src.remaining() > remaining(), then no bytes are transferred
+		/// and a BufferOverflowException is thrown.
+		///
+		/// Otherwise, this method copies n = src.remaining() bytes from the given buffer into this buffer,
+		/// starting at each buffer's current position. The positions of both buffers are then
+		/// incremented by n.
 		/// </summary>
 		/// <param name="src">The source buffer from which bytes are to be read; must not be this buffer.</param>
 		public void Put(ByteBuffer src)
@@ -283,7 +283,7 @@ namespace Nexutron
 		}
 		/// <summary>
 		/// Absolute put method.
-		/// Writes the given byte into this buffer at the given index. 
+		/// Writes the given byte into this buffer at the given index.
 		/// </summary>
 		/// <param name="index">The index.</param>
 		/// <param name="value">The byte to write.</param>
@@ -340,7 +340,7 @@ namespace Nexutron
 		/// </summary>
 		/// <returns>A new byte array.</returns>
 		/// <remarks>
-		/// This method omits unused bytes in ByteBuffer from the array. To get the entire buffer, use the GetBuffer method. 
+		/// This method omits unused bytes in ByteBuffer from the array. To get the entire buffer, use the GetBuffer method.
 		/// </remarks>
 		public byte[] ToArray()
 		{
@@ -351,7 +351,7 @@ namespace Nexutron
 		/// Returns the array of unsigned bytes from which this stream was created.
 		/// </summary>
 		/// <returns>
-		/// The byte array from which this ByteBuffer was created, or the underlying array if a byte array was not provided to the ByteBuffer constructor during construction of the current instance. 
+		/// The byte array from which this ByteBuffer was created, or the underlying array if a byte array was not provided to the ByteBuffer constructor during construction of the current instance.
 		/// </returns>
 		public byte[] GetBuffer()
 		{
@@ -359,17 +359,17 @@ namespace Nexutron
 		}
 		/// <summary>
 		/// Compacts this buffer
-		/// 
-		/// The bytes between the buffer's current position and its limit, if any, 
-		/// are copied to the beginning of the buffer. That is, the byte at 
-		/// index p = position() is copied to index zero, the byte at index p + 1 is copied 
-		/// to index one, and so forth until the byte at index limit() - 1 is copied 
-		/// to index n = limit() - 1 - p. 
-		/// The buffer's position is then set to n+1 and its limit is set to its capacity. 
-		/// The mark, if defined, is discarded. 
-		/// The buffer's position is set to the number of bytes copied, rather than to zero, 
-		/// so that an invocation of this method can be followed immediately by an invocation of 
-		/// another relative put method. 
+		///
+		/// The bytes between the buffer's current position and its limit, if any,
+		/// are copied to the beginning of the buffer. That is, the byte at
+		/// index p = position() is copied to index zero, the byte at index p + 1 is copied
+		/// to index one, and so forth until the byte at index limit() - 1 is copied
+		/// to index n = limit() - 1 - p.
+		/// The buffer's position is then set to n+1 and its limit is set to its capacity.
+		/// The mark, if defined, is discarded.
+		/// The buffer's position is set to the number of bytes copied, rather than to zero,
+		/// so that an invocation of this method can be followed immediately by an invocation of
+		/// another relative put method.
 		/// </summary>
 		public void Compact()
 		{
@@ -492,8 +492,8 @@ namespace Nexutron
 			return _stream.Read(buffer, offset, count);
 		}
 		/// <summary>
-		/// Relative bulk get method. 
-		/// This method transfers bytes from this buffer into the given destination array. 
+		/// Relative bulk get method.
+		/// This method transfers bytes from this buffer into the given destination array.
 		/// An invocation of this method behaves in exactly the same way as the invocation buffer.Get(a, 0, a.Length)
 		/// </summary>
 		/// <param name="buffer">An array of bytes.</param>
@@ -512,7 +512,7 @@ namespace Nexutron
 			return _stream.ReadByte();
 		}
 		/// <summary>
-		/// Sets the position within the current stream. 
+		/// Sets the position within the current stream.
 		/// </summary>
 		/// <param name="offset">A byte offset relative to the origin parameter.</param>
 		/// <param name="origin">A value of type SeekOrigin indicating the reference point used to obtain the new position.</param>
@@ -551,7 +551,7 @@ namespace Nexutron
 		#endregion Stream
 
 		/// <summary>
-		/// Reads count bytes from the current stream into a byte array and advances the current position by count bytes. 
+		/// Reads count bytes from the current stream into a byte array and advances the current position by count bytes.
 		/// </summary>
 		/// <param name="count"></param>
 		/// <returns></returns>
@@ -645,7 +645,7 @@ namespace Nexutron
 		}
 
 		public void PutLong(long value)
-        {
+		{
 			byte[] bytes = BitConverter.GetBytes(value);
 			WriteBigEndian(bytes);
 		}

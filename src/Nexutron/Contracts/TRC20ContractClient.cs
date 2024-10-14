@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using Nethereum.ABI.FunctionEncoding;
 using Nethereum.ABI.Model;
 using Nethereum.Contracts;
-using Nethereum.Hex.HexConvertors.Extensions;
 using Nexutron.Accounts;
 using Nexutron.Crypto;
 using Nexutron.Extensions;
 using Nexutron.Protocol;
+using Nethereum.Contracts.Standards.ERC20.ContractDefinition;
 
 namespace Nexutron.Contracts
 {
@@ -55,15 +55,11 @@ namespace Nexutron.Contracts
             var contractAddressBytes = Base58Encoder.DecodeFromBase58Check(contractAddress);
             var callerAddressBytes = Base58Encoder.DecodeFromBase58Check(toAddress);
             var ownerAddressBytes = Base58Encoder.DecodeFromBase58Check(ownerAccount.Address);
-            var wallet = _walletClient.GetProtocol();
+            var wallet = _walletClient.GetWalletClient();
             var functionABI = ABITypedRegistry.GetFunctionABI<TransferFunction>();
             try
             {
 
-                var contract = await wallet.GetContractAsync(new BytesMessage
-                {
-                    Value = ByteString.CopyFrom(contractAddressBytes),
-                }, headers: _walletClient.GetHeaders());
 
                 var toAddressBytes = new byte[20];
                 Array.Copy(callerAddressBytes, 1, toAddressBytes, 0, toAddressBytes.Length);
@@ -78,20 +74,22 @@ namespace Nexutron.Contracts
                     tokenAmount = amount * Convert.ToDecimal(Math.Pow(10, decimals));
                 }
 
+                // TODO: Doublecheck it does not care about the address format (Hex/Base58)
                 var trc20Transfer = new TransferFunction
                 {
+                    FromAddress = ownerAccount.Address,
                     To = toAddressHex,
-                    TokenAmount = Convert.ToInt64(tokenAmount),
+                    Value = Convert.ToInt64(tokenAmount),
                 };
 
-                var encodedHex = new FunctionCallEncoder().EncodeRequest(trc20Transfer, functionABI.Sha3Signature);
+                var txInput = trc20Transfer.CreateTransactionInput(contractAddress);
 
 
                 var trigger = new TriggerSmartContract
                 {
                     ContractAddress = ByteString.CopyFrom(contractAddressBytes),
                     OwnerAddress = ByteString.CopyFrom(ownerAddressBytes),
-                    Data = ByteString.CopyFrom(encodedHex.HexToByteArray()),
+                    Data = ByteString.CopyFrom(txInput.Data.HexToByteArray()),
                 };
 
                 var transactionExtention = await wallet.TriggerConstantContractAsync(trigger, headers: _walletClient.GetHeaders());
@@ -104,7 +102,7 @@ namespace Nexutron.Contracts
 
                 var transaction = transactionExtention.Transaction;
 
-                if (transaction.Ret.Count > 0 && transaction.Ret[0].Ret == Transaction.Types.Result.Types.code.Failed)
+                if (transaction.Ret.Count > 0 && transaction.Ret[0].Ret == Nexutron.Protocol.Transaction.Types.Result.Types.code.Failed)
                 {
                     return null;
                 }
@@ -131,7 +129,7 @@ namespace Nexutron.Contracts
         {
             var contractAddressBytes = Base58Encoder.DecodeFromBase58Check(contractAddress);
             var ownerAddressBytes = Base58Encoder.DecodeFromBase58Check(ownerAccount.Address);
-            var wallet = _walletClient.GetProtocol();
+            var wallet = _walletClient.GetWalletClient();
             var functionABI = ABITypedRegistry.GetFunctionABI<BalanceOfFunction>();
             try
             {
@@ -163,7 +161,7 @@ namespace Nexutron.Contracts
                     throw new Exception($"result error, ConstantResult length=0.");
                 }
 
-                var result = new FunctionCallDecoder().DecodeFunctionOutput<BalanceOfFunctionOutput>(transactionExtention.ConstantResult[0].ToByteArray().ToHex());
+                var result = new FunctionCallDecoder().DecodeFunctionOutput<BalanceOfOutputDTO>(transactionExtention.ConstantResult[0].ToByteArray().ToHex());
 
                 var balance = Convert.ToDecimal(result.Balance);
                 if (decimals > 0)

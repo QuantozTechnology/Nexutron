@@ -1,90 +1,47 @@
 ﻿using Google.Protobuf;
 using Grpc.Core;
 using Microsoft.Extensions.Options;
-using System;
 using Nexutron.Accounts;
-using Nexutron.Crypto;
-using Nexutron.Extensions;
+using Nexutron.Helpers;
 using Nexutron.Protocol;
 
 namespace Nexutron
 {
-    class WalletClient : IWalletClient
+    class WalletClient(IGrpcChannelClient channelClient, IOptions<NexutronOptions> options) : IWalletClient
     {
-        private readonly IGrpcChannelClient _channelClient;
-        private readonly IOptions<TronDotNetOptions> _options;
+        private readonly IGrpcChannelClient _channelClient = channelClient;
+        private readonly IOptions<NexutronOptions> _options = options;
 
-        public WalletClient(IGrpcChannelClient channelClient, IOptions<TronDotNetOptions> options)
-        {
-            _channelClient = channelClient;
-            _options = options;
-        }
-
-        public Wallet.WalletClient GetProtocol()
+        public Wallet.WalletClient GetWalletClient()
         {
             var channel = _channelClient.GetProtocol();
-            var wallet = new Wallet.WalletClient(channel);
-            return wallet;
+            return WalletClientHelper.GetWalletClient(channel);
         }
 
         public ITronAccount GenerateAccount()
         {
-            var tronKey = TronECKeyGenerator.GenerateKey(_options.Value.Network);
-            return new TronAccount(tronKey);
+            return AccountHelper.GenerateAccount();
         }
 
         public ITronAccount GetAccount(string privateKey)
         {
-            return new TronAccount(privateKey, _options.Value.Network);
+            return AccountHelper.GetAccount(privateKey);
         }
 
-        public WalletSolidity.WalletSolidityClient GetSolidityProtocol()
+        public WalletSolidity.WalletSolidityClient GetSolidityClient()
         {
             var channel = _channelClient.GetSolidityProtocol();
-            var wallet = new WalletSolidity.WalletSolidityClient(channel);
-
-            return wallet;
+            return WalletClientHelper.GetSolidityClient(channel);
         }
 
         public ByteString ParseAddress(string address)
         {
-            if (string.IsNullOrWhiteSpace(address)) throw new ArgumentNullException(nameof(address));
-
-            byte[] raw;
-            if (address.StartsWith("T"))
-            {
-                raw = Base58Encoder.DecodeFromBase58Check(address);
-            }
-            else if (address.StartsWith("41"))
-            {
-                raw = address.HexToByteArray();
-            }
-            else if (address.StartsWith("0x"))
-            {
-                raw = address[2..].HexToByteArray();
-            }
-            else
-            {
-                try
-                {
-                    raw = address.HexToByteArray();
-                }
-                catch (Exception)
-                {
-                    throw new ArgumentException($"Invalid address: " + address);
-                }
-            }
-            return ByteString.CopyFrom(raw);
+            return AccountHelper.ParseAddress(address);
         }
 
         public Metadata GetHeaders()
         {
-            var headers = new Metadata
-            {
-                { "TRON-PRO-API-KEY", _options.Value.ApiKey }
-            };
-
-            return headers;
+            return WalletHelper.GetHeaders(_options.Value.ApiKey);
         }
     }
 }
