@@ -182,7 +182,7 @@ namespace Nexutron.Crypto
         {
             if (input.Length == 0)
             {
-                return new byte[0];
+                return [];
             }
 
 

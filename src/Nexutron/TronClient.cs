@@ -10,24 +10,12 @@ using Nexutron.Protocol;
 
 namespace Nexutron
 {
-    class TronClient : ITronClient
+    class TronClient(IGrpcChannelClient channelClient, IWalletClient walletClient, ITransactionClient transactionClient) : ITronClient
     {
-        private readonly ILogger<TronClient> _logger;
-        private readonly IOptions<NexutronOptions> _options;
-        private readonly IGrpcChannelClient _channelClient;
-        private readonly IWalletClient _walletClient;
-        private readonly ITransactionClient _transactionClient;
+        private readonly IGrpcChannelClient _channelClient = channelClient;
+        private readonly IWalletClient _walletClient = walletClient;
+        private readonly ITransactionClient _transactionClient = transactionClient;
 
-        public TronNetwork TronNetwork => _options.Value.Network;
-
-        public TronClient(ILogger<TronClient> logger, IOptions<NexutronOptions> options, IGrpcChannelClient channelClient, IWalletClient walletClient, ITransactionClient transactionClient)
-        {
-            _logger = logger;
-            _options = options;
-            _channelClient = channelClient;
-            _walletClient = walletClient;
-            _transactionClient = transactionClient;
-        }
         public IGrpcChannelClient GetChannel()
         {
             return _channelClient;

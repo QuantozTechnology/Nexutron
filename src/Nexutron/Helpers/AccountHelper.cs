@@ -8,15 +8,15 @@ namespace Nexutron.Helpers
 {
     public static class AccountHelper
     {
-        public static ITronAccount GenerateAccount(TronNetwork network)
+        public static ITronAccount GenerateAccount()
         {
-            var tronKey = TronECKeyGenerator.GenerateKey(network);
+            var tronKey = TronECKeyGenerator.GenerateKey();
             return new TronAccount(tronKey);
         }
 
-        public static ITronAccount GetAccount(string privateKey, TronNetwork network)
+        public static ITronAccount GetAccount(string privateKey)
         {
-            return new TronAccount(privateKey, network);
+            return new TronAccount(privateKey);
         }
 
         public static ByteString ParseAddress(string address)
@@ -24,7 +24,7 @@ namespace Nexutron.Helpers
             if (string.IsNullOrWhiteSpace(address)) throw new ArgumentNullException(nameof(address));
 
             byte[] raw;
-            if (address.StartsWith("T"))
+            if (address.StartsWith('T'))
             {
                 raw = Base58Encoder.DecodeFromBase58Check(address);
             }
@@ -57,12 +57,17 @@ namespace Nexutron.Helpers
 
         public static string GetBase58Address(string address)
         {
-            return Base58Encoder.EncodeFromHex(ParseAddress(address).ToByteArray().ToHex(), 0x41);
+            return GetBase58Address(ParseAddress(address));
         }
 
         public static string GetHexAddress(ByteString address)
         {
             return address.ToByteArray().ToHex();
+        }
+
+        public static string GetHexAddress(string address)
+        {
+            return GetHexAddress(ParseAddress(address));
         }
     }
 }

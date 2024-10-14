@@ -23,9 +23,9 @@ public static class ECKeyExtension
 
 public static class TronECKeyGenerator
 {
-    private static readonly SecureRandom SecureRandom = new SecureRandom();
+    private static readonly SecureRandom SecureRandom = new();
 
-    public static TronECKey GenerateKey(TronNetwork network)
+    public static TronECKey GenerateKey()
     {
         var gen = new ECKeyPairGenerator("EC");
         var keyGenParam = new KeyGenerationParameters(SecureRandom, 256);
@@ -33,8 +33,8 @@ public static class TronECKeyGenerator
         var keyPair = gen.GenerateKeyPair();
         var privateBytes = ((ECPrivateKeyParameters)keyPair.Private).D.ToByteArrayUnsigned();
         if (privateBytes.Length != 32)
-            return GenerateKey(network);
-        return new TronECKey(privateBytes, true, network);
+            return GenerateKey();
+        return new TronECKey(privateBytes, true);
     }
 }
 

@@ -50,5 +50,10 @@ namespace Nexutron.Helpers
         {
             return await wallet.BroadcastTransactionAsync(transaction, headers: WalletHelper.GetHeaders(apiKey));
         }
+
+        public static async Task<Return> BroadcastTransactionAsync(Wallet.WalletClient wallet, Transaction transaction, Metadata headers)
+        {
+            return await wallet.BroadcastTransactionAsync(transaction, headers: headers);
+        }
     }
 }

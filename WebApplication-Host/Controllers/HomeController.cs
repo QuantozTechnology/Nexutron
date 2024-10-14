@@ -39,7 +39,7 @@ namespace WebApplication_Host.Controllers
 
             var response = client.Execute(request);
 
-            var key = TronECKeyGenerator.GenerateKey(TronNetwork.MainNet);
+            var key = TronECKeyGenerator.GenerateKey();
 
             var address = key.GetPublicAddress();
 

@@ -39,6 +39,7 @@ namespace Nexutron.Helpers
             transaction.RawData = new Transaction.Types.raw();
             transaction.RawData.Contract.Add(contract);
 
+            // This adds 1 TRX to the transaction cost
             if (!string.IsNullOrWhiteSpace(memo))
             {
                 transaction.RawData.Data = ByteString.FromBase64(memo);
@@ -47,8 +48,8 @@ namespace Nexutron.Helpers
             // milliseconds (since unix epoch)
             var currentTimestamp = (timestamp.Ticks - DateTime.UnixEpoch.Ticks) / 10_000;
 
-            transaction.RawData.Timestamp = currentTimestamp; // TODO: Should this be ticks? Seems maybe too large 638598441372523783
-            transaction.RawData.Expiration = currentTimestamp + expirationTime; // 60 * 60 * 1000; 1724247336000
+            transaction.RawData.Timestamp = currentTimestamp;
+            transaction.RawData.Expiration = currentTimestamp + expirationTime;
             var blockHeight = newestBlock.BlockHeader.RawData.Number;
             var blockHash = Sha256Sm3Hash.Of(newestBlock.BlockHeader.RawData.ToByteArray()).GetBytes();
 

@@ -17,14 +17,14 @@ namespace TestTronDotNet
             Console.WriteLine("Hello NexuTron World!");
 
 
-            TestTransactionParsing();
+            TestContractTransation();
         }
 
 
         public static void GenerateWalletOffline()
         {
 
-            var key = TronECKeyGenerator.GenerateKey(TronNetwork.MainNet);
+            var key = TronECKeyGenerator.GenerateKey();
 
             var address = key.GetPublicAddress();
 
@@ -35,7 +35,7 @@ namespace TestTronDotNet
         public static void TestKeyGeneration()
         {
             // Should be TBDCyrZ1hT1PDDFf2yRABwPrFica5qqPUX
-            var key = new TronECKey("fd605fb953fcdabb952be161265a75b8a3ce1c0def2c7db72265f9db9a471be4", TronNetwork.MainNet);
+            var key = new TronECKey("fd605fb953fcdabb952be161265a75b8a3ce1c0def2c7db72265f9db9a471be4");
             Console.WriteLine(key.GetPublicAddress());
         }
 
@@ -43,7 +43,7 @@ namespace TestTronDotNet
         {
             var walletPrivateKey = "fd605fb953fcdabb952be161265a75b8a3ce1c0def2c7db72265f9db9a471be4";
 
-            var ecKey = new TronECKey(walletPrivateKey, TronNetwork.MainNet);
+            var ecKey = new TronECKey(walletPrivateKey);
             var from = ecKey.GetPublicAddress();
 
             //Receiving wallet
@@ -55,7 +55,6 @@ namespace TestTronDotNet
             IServiceCollection services = new ServiceCollection();
             services.AddTronDotNet(x =>
             {
-                x.Network = TronNetwork.TestNet;
                 x.Channel = new GrpcChannelOption { Host = "3.225.171.164", Port = 50051 };
                 x.SolidityChannel = new GrpcChannelOption { Host = "3.225.171.164", Port = 50052 };
                 // x.ApiKey = "07rgc8e4-7as1-4d34-d334-fe40ai6gc542";
@@ -96,7 +95,6 @@ namespace TestTronDotNet
             IServiceCollection services = new ServiceCollection();
             services.AddTronDotNet(x =>
             {
-                x.Network = TronNetwork.TestNet;
                 x.Channel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50051 };
                 x.SolidityChannel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50052 };
                 //x.Channel = new GrpcChannelOption { Host = "3.225.171.164", Port = 50051 };
@@ -111,8 +109,10 @@ namespace TestTronDotNet
             var walletClient = service.GetService<IWalletClient>();
             var wallet = walletClient.GetWalletClient();
 
-            var account = new Account();
-            account.Address = AccountHelper.ParseAddress("TVE2zEUu17oLhHZ2n26ye6SqP7ZLWJtBHA");
+            var account = new Account
+            {
+                Address = AccountHelper.ParseAddress("TVE2zEUu17oLhHZ2n26ye6SqP7ZLWJtBHA")
+            };
 
             var testresource = wallet.GetAccountNet(account);
 
@@ -134,7 +134,7 @@ namespace TestTronDotNet
         {
             var walletPrivateKey = "a56dc78b73a892f9f94e1d28c51b87fa3e1a08fe6c291b0e083e8eac5aa6a295";
 
-            var ecKey = new TronECKey(walletPrivateKey, TronNetwork.MainNet);
+            var ecKey = new TronECKey(walletPrivateKey);
             var from = ecKey.GetPublicAddress();
             //Receiving wallet
             //var to = "TVE2zEUu17oLhHZ2n26ye6SqP7ZLWJtBHA";
@@ -146,7 +146,6 @@ namespace TestTronDotNet
             IServiceCollection services = new ServiceCollection();
             services.AddTronDotNet(x =>
             {
-                x.Network = TronNetwork.TestNet;
                 x.Channel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50051 };
                 x.SolidityChannel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50052 };
                 // x.ApiKey = "07rgc8e4-7as1-4d34-d334-fe40ai6gc542";
@@ -183,14 +182,19 @@ namespace TestTronDotNet
         public static void TestContractTransation()
         {
             //The private key of the transmitter
-            var walletPrivateKey = "62075119d64f17ebd3248df7a864cd84380fcb9e5771f0968af2167a25717bb2";
+            var walletPrivateKey = "a56dc78b73a892f9f94e1d28c51b87fa3e1a08fe6c291b0e083e8eac5aa6a295";
+
+            var ecKey = new TronECKey(walletPrivateKey);
+            var from = ecKey.GetPublicAddress();
+            var acc = AccountHelper.GetAccount(walletPrivateKey);
 
             IServiceCollection services = new ServiceCollection();
             services.AddTronDotNet(x =>
             {
-                x.Network = TronNetwork.MainNet;
-                x.Channel = new GrpcChannelOption { Host = "3.225.171.164", Port = 50051 };
-                x.SolidityChannel = new GrpcChannelOption { Host = "3.225.171.164", Port = 50052 };
+                x.Channel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50051 };
+                x.SolidityChannel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50052 };
+                // x.ApiKey = "07rgc8e4-7as1-4d34-d334-fe40ai6gc542";
+                //I thought it was necessary to fill in, but it seems that it can be used without filling in
                 x.ApiKey = "apikey";
             });
 
@@ -203,7 +207,7 @@ namespace TestTronDotNet
             var account = walletClient.GetAccount(walletPrivateKey);
 
             //USDT TOKEN
-            var contractAddress = "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj";
+            var contractAddress = "TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs";
 
             //Wallet
             var to = "TH8fU6BLpU6EjqvZTWWSB1uhpEVxzT35Xj";
@@ -217,7 +221,7 @@ namespace TestTronDotNet
             var contractClient = contractClientFactory.CreateClient(ContractProtocol.TRC20);
 
             //Remarks can only be in English
-            var result = contractClient.TransferAsync(contractAddress, account, to, amount, "Miladsoft", feeAmount).Result;
+            var result = contractClient.TransferAsync(contractAddress, acc, to, amount, "Miladsoft", feeAmount).Result;
 
             Console.WriteLine("-- RESULT --");
             Console.WriteLine(JsonConvert.SerializeObject(result));

@@ -7,16 +7,10 @@ using Nexutron.Protocol;
 
 namespace Nexutron
 {
-    class WalletClient : IWalletClient
+    class WalletClient(IGrpcChannelClient channelClient, IOptions<NexutronOptions> options) : IWalletClient
     {
-        private readonly IGrpcChannelClient _channelClient;
-        private readonly IOptions<NexutronOptions> _options;
-
-        public WalletClient(IGrpcChannelClient channelClient, IOptions<NexutronOptions> options)
-        {
-            _channelClient = channelClient;
-            _options = options;
-        }
+        private readonly IGrpcChannelClient _channelClient = channelClient;
+        private readonly IOptions<NexutronOptions> _options = options;
 
         public Wallet.WalletClient GetWalletClient()
         {
@@ -26,12 +20,12 @@ namespace Nexutron
 
         public ITronAccount GenerateAccount()
         {
-            return AccountHelper.GenerateAccount(_options.Value.Network);
+            return AccountHelper.GenerateAccount();
         }
 
         public ITronAccount GetAccount(string privateKey)
         {
-            return AccountHelper.GetAccount(privateKey, _options.Value.Network);
+            return AccountHelper.GetAccount(privateKey);
         }
 
         public WalletSolidity.WalletSolidityClient GetSolidityClient()

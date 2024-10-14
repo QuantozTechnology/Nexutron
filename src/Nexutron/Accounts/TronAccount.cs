@@ -14,9 +14,9 @@ namespace Nexutron.Accounts
         public string PrivateKey { get; private set; }
 
         private TronECKey _key = null;
-        public TronAccount(string privateKey, TronNetwork network)
+        public TronAccount(string privateKey)
         {
-            Initialise(new TronECKey(privateKey, network));
+            Initialise(new TronECKey(privateKey));
         }
 
         public TronAccount(TronECKey key)
@@ -34,7 +34,7 @@ namespace Nexutron.Accounts
 
         public byte GetAddressPrefix()
         {
-            return _key.GetPublicAddressPrefix();
+            return TronECKey.GetPublicAddressPrefix();
         }
     }
 }

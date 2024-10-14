@@ -9,6 +9,7 @@ using Nexutron.Accounts;
 using Nexutron.Crypto;
 using Nexutron.Extensions;
 using Nexutron.Protocol;
+using Nethereum.Contracts.Standards.ERC20.ContractDefinition;
 
 namespace Nexutron.Contracts
 {
@@ -73,20 +74,22 @@ namespace Nexutron.Contracts
                     tokenAmount = amount * Convert.ToDecimal(Math.Pow(10, decimals));
                 }
 
+                // TODO: Doublecheck it does not care about the address format (Hex/Base58)
                 var trc20Transfer = new TransferFunction
                 {
+                    FromAddress = ownerAccount.Address,
                     To = toAddressHex,
-                    TokenAmount = Convert.ToInt64(tokenAmount),
+                    Value = Convert.ToInt64(tokenAmount),
                 };
 
-                var encodedHex = new FunctionCallEncoder().EncodeRequest(trc20Transfer, functionABI.Sha3Signature);
+                var txInput = trc20Transfer.CreateTransactionInput(contractAddress);
 
 
                 var trigger = new TriggerSmartContract
                 {
                     ContractAddress = ByteString.CopyFrom(contractAddressBytes),
                     OwnerAddress = ByteString.CopyFrom(ownerAddressBytes),
-                    Data = ByteString.CopyFrom(encodedHex.HexToByteArray()),
+                    Data = ByteString.CopyFrom(txInput.Data.HexToByteArray()),
                 };
 
                 var transactionExtention = await wallet.TriggerConstantContractAsync(trigger, headers: _walletClient.GetHeaders());
@@ -99,7 +102,7 @@ namespace Nexutron.Contracts
 
                 var transaction = transactionExtention.Transaction;
 
-                if (transaction.Ret.Count > 0 && transaction.Ret[0].Ret == Transaction.Types.Result.Types.code.Failed)
+                if (transaction.Ret.Count > 0 && transaction.Ret[0].Ret == Nexutron.Protocol.Transaction.Types.Result.Types.code.Failed)
                 {
                     return null;
                 }
@@ -158,7 +161,7 @@ namespace Nexutron.Contracts
                     throw new Exception($"result error, ConstantResult length=0.");
                 }
 
-                var result = new FunctionCallDecoder().DecodeFunctionOutput<BalanceOfFunctionOutput>(transactionExtention.ConstantResult[0].ToByteArray().ToHex());
+                var result = new FunctionCallDecoder().DecodeFunctionOutput<BalanceOfOutputDTO>(transactionExtention.ConstantResult[0].ToByteArray().ToHex());
 
                 var balance = Convert.ToDecimal(result.Balance);
                 if (decimals > 0)

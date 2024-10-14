@@ -9,7 +9,6 @@ namespace Nexutron
 {
     public class NexutronOptions
     {
-        public TronNetwork Network { get; set; }
         public GrpcChannelOption Channel { get; set; }
 
         public GrpcChannelOption SolidityChannel { get; set; }
