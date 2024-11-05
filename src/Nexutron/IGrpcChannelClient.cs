@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Grpc.Net.Client;
 
-namespace Nexutron
+namespace Nexutron;
+
+public interface IGrpcChannelClient
 {
-    public interface IGrpcChannelClient
-    {
-        
-        Grpc.Core.Channel GetProtocol();
-        Grpc.Core.Channel GetSolidityProtocol();
-    }
+    GrpcChannel GetProtocol();
+    GrpcChannel GetSolidityProtocol();
 }

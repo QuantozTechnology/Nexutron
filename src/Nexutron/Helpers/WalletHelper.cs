@@ -1,20 +1,16 @@
-﻿using Google.Protobuf;
-using Grpc.Core;
-using Nexutron.Crypto;
-using System;
+﻿using Grpc.Core;
 
-namespace Nexutron.Helpers
+namespace Nexutron.Helpers;
+
+public static class WalletHelper
 {
-    public static class WalletHelper
+    public static Metadata GetHeaders(string apiKey)
     {
-        public static Metadata GetHeaders(string apiKey)
+        var headers = new Metadata
         {
-            var headers = new Metadata
-            {
-                { "TRON-PRO-API-KEY", apiKey }
-            };
+            { "TRON-PRO-API-KEY", apiKey }
+        };
 
-            return headers;
-        }
+        return headers;
     }
 }
