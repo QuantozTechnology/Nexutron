@@ -5,43 +5,39 @@ using Nexutron.Accounts;
 using Nexutron.Helpers;
 using Nexutron.Protocol;
 
-namespace Nexutron
+namespace Nexutron;
+
+public class WalletClient(IGrpcChannelClient channelClient, IOptions<NexutronOptions> options) : IWalletClient
 {
-    class WalletClient(IGrpcChannelClient channelClient, IOptions<NexutronOptions> options) : IWalletClient
+    public Wallet.WalletClient GetWalletClient()
     {
-        private readonly IGrpcChannelClient _channelClient = channelClient;
-        private readonly IOptions<NexutronOptions> _options = options;
+        var channel = channelClient.GetProtocol();
+        return WalletClientHelper.GetWalletClient(channel);
+    }
 
-        public Wallet.WalletClient GetWalletClient()
-        {
-            var channel = _channelClient.GetProtocol();
-            return WalletClientHelper.GetWalletClient(channel);
-        }
+    public ITronAccount GenerateAccount()
+    {
+        return AccountHelper.GenerateAccount();
+    }
 
-        public ITronAccount GenerateAccount()
-        {
-            return AccountHelper.GenerateAccount();
-        }
+    public ITronAccount GetAccount(string privateKey)
+    {
+        return AccountHelper.GetAccount(privateKey);
+    }
 
-        public ITronAccount GetAccount(string privateKey)
-        {
-            return AccountHelper.GetAccount(privateKey);
-        }
+    public WalletSolidity.WalletSolidityClient GetSolidityClient()
+    {
+        var channel = channelClient.GetSolidityProtocol();
+        return WalletClientHelper.GetSolidityClient(channel);
+    }
 
-        public WalletSolidity.WalletSolidityClient GetSolidityClient()
-        {
-            var channel = _channelClient.GetSolidityProtocol();
-            return WalletClientHelper.GetSolidityClient(channel);
-        }
+    public ByteString ParseAddress(string address)
+    {
+        return AccountHelper.ParseAddress(address);
+    }
 
-        public ByteString ParseAddress(string address)
-        {
-            return AccountHelper.ParseAddress(address);
-        }
-
-        public Metadata GetHeaders()
-        {
-            return WalletHelper.GetHeaders(_options.Value.ApiKey);
-        }
+    public Metadata GetHeaders()
+    {
+        return WalletHelper.GetHeaders(options.Value.ApiKey);
     }
 }
