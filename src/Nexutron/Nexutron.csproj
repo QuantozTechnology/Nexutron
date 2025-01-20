@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Authors>Miladsoft</Authors>
     <Version>0.5.0</Version>
     <PackageProjectUrl>https://github.com/miladsoft/TronDotNet</PackageProjectUrl>
@@ -20,12 +20,12 @@ TronDotNet makes it easy to build TRON applications with .net.</Description>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NBitcoin" Version="7.0.31" />
-    <PackageReference Include="Nethereum.ABI" Version="4.17.1" />
-    <PackageReference Include="Nethereum.Signer" Version="4.17.1" />
-    <PackageReference Include="Nethereum.Contracts" Version="4.17.1" />
-    <PackageReference Include="Nethereum.Hex" Version="4.17.1" />
-    <PackageReference Include="Nethereum.Util" Version="4.17.1" />
+    <PackageReference Include="NBitcoin" Version="7.0.50" />
+    <PackageReference Include="Nethereum.ABI" Version="4.28.0" />
+    <PackageReference Include="Nethereum.Signer" Version="4.28.0" />
+    <PackageReference Include="Nethereum.Contracts" Version="4.28.0" />
+    <PackageReference Include="Nethereum.Hex" Version="4.28.0" />
+    <PackageReference Include="Nethereum.Util" Version="4.28.0" />
   </ItemGroup>
 
 </Project>
