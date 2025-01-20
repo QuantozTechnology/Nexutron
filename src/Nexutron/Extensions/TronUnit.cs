@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Nexutron
+namespace Nexutron.Extensions
 {
     public static class TronUnit
     {
-        private static long _sun_unit = 1_000_000L;
+        private static readonly long _sun_unit = 1_000_000L;
 
         public static long TRXToSun(decimal trx)
         {

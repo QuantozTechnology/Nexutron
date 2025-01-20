@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Nexutron
+namespace Nexutron.Extensions
 {
     public static class ArrayExtension
     {

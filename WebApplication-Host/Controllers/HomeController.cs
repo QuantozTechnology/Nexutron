@@ -15,20 +15,8 @@ using WebApplication_Host.Models;
 
 namespace WebApplication_Host.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController(IWalletClient wallet, IContractClientFactory contract) : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-        private readonly ITronClient _tron;
-        private readonly IWalletClient _wallet;
-        private readonly IContractClientFactory _contract;
-        public HomeController(ILogger<HomeController> logger, IWalletClient wallet, IContractClientFactory contract, ITronClient tron)
-        {
-            _logger = logger;
-            _wallet = wallet;
-            _contract = contract;
-            _tron = tron;
-        }
-
         public IActionResult Index()
         {
             var client = new RestClient("https://api.trongrid.io/");
@@ -51,10 +39,10 @@ namespace WebApplication_Host.Controllers
             ViewData["publickey"] = publickey;
 
             #region If you want to get the balance of trc-20 tokens, write your code below
-            var account = _wallet.GetAccount(privatekey);
+            var account = wallet.GetAccount(privatekey);
             //USDT TOKEN
             var contractAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
-            var contractClient = _contract.CreateClient(ContractProtocol.TRC20);
+            var contractClient = contract.CreateClient(ContractProtocol.TRC20);
             //USDT Balance
             var balance = contractClient.BalanceOfAsync(contractAddress, account).Result;
 

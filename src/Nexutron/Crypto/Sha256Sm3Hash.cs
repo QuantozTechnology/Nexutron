@@ -13,7 +13,7 @@ namespace Nexutron.Crypto
         public static int LENGTH = 32; // bytes
         public static Sha256Sm3Hash ZERO_HASH = Wrap(new byte[LENGTH]);
 
-        private byte[] _bytes;
+        private readonly byte[] _bytes;
 
         static Sha256Sm3Hash()
         {
@@ -21,7 +21,7 @@ namespace Nexutron.Crypto
 
         public Sha256Sm3Hash(byte[] rawHashBytes)
         {
-            checkArgument(rawHashBytes.Length == LENGTH);
+            CheckArgument(rawHashBytes.Length == LENGTH);
             _bytes = rawHashBytes;
         }
 
@@ -59,7 +59,7 @@ namespace Nexutron.Crypto
             return output;
 
         }
-        private void checkArgument(bool result)
+        private static void CheckArgument(bool result)
         {
             if (!result) throw new ArgumentException();
         }

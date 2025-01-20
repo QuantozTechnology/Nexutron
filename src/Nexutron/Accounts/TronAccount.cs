@@ -12,8 +12,6 @@ namespace Nexutron.Accounts
         public string Address { get; protected set; }
         public string PublicKey { get; private set; }
         public string PrivateKey { get; private set; }
-
-        private TronECKey _key = null;
         public TronAccount(string privateKey)
         {
             Initialise(new TronECKey(privateKey));
@@ -26,7 +24,6 @@ namespace Nexutron.Accounts
 
         public void Initialise(TronECKey key)
         {
-            _key = key;
             PrivateKey = key.GetPrivateKey();
             Address = key.GetPublicAddress();
             PublicKey = key.GetPubKey().ToHex();

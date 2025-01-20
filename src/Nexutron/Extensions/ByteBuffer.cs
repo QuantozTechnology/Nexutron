@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Nexutron
+namespace Nexutron.Extensions
 {
 	/// <summary>
 	/// This type supports the Fluorine infrastructure and is not intended to be used directly from your code.
@@ -40,8 +40,8 @@ namespace Nexutron
 		/// <returns></returns>
 		public static ByteBuffer Allocate(int capacity)
 		{
-			MemoryStream ms = new MemoryStream(capacity);
-			ByteBuffer buffer = new ByteBuffer(ms)
+			MemoryStream ms = new(capacity);
+			ByteBuffer buffer = new(ms)
 			{
 				Limit = capacity
 			};
@@ -61,7 +61,7 @@ namespace Nexutron
 		/// <returns></returns>
 		public static ByteBuffer Wrap(byte[] array, int offset, int length)
 		{
-			MemoryStream ms = new MemoryStream(array, offset, length, true, true);
+			MemoryStream ms = new(array, offset, length, true, true);
 			ms.Capacity = array.Length;
 			ms.SetLength(offset + length);
 			ms.Position = offset;
@@ -169,8 +169,7 @@ namespace Nexutron
 		{
 			if (disposing)
 			{
-				if (_stream != null)
-					_stream.Dispose();
+				_stream?.Dispose();
 				_stream = null;
 			}
 			base.Dispose(disposing);
@@ -382,7 +381,7 @@ namespace Nexutron
 			}
 			//this.Position = this.Limit - this.Position;
 			//this.Limit = this.Capacity;
-			this.Limit = this.Limit - (int)this.Position;
+			this.Limit -= (int)this.Position;
 			this.Position = 0;
 		}
 
@@ -698,7 +697,7 @@ namespace Nexutron
 		/// <returns></returns>
 		public static int Put(ByteBuffer output, ByteBuffer input, int numBytesMax)
 		{
-			int limit = input.Limit;
+			//int limit = input.Limit;
 			int numBytesRead = (numBytesMax > input.Remaining) ? input.Remaining : numBytesMax;
 			/*
 			input.Limit = (int)input.Position + numBytesRead;
@@ -714,12 +713,10 @@ namespace Nexutron
 		/// <param name="file"></param>
 		public void Dump(string file)
 		{
-			using (FileStream fs = new FileStream(file, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite))
-			{
-				byte[] buffer = this.ToArray();
-				fs.Write(buffer, 0, buffer.Length);
-				fs.Close();
-			}
+			using FileStream fs = new(file, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+			byte[] buffer = this.ToArray();
+			fs.Write(buffer, 0, buffer.Length);
+			fs.Close();
 		}
 	}
 }

@@ -1,5 +1,6 @@
 using System;
 using Nethereum.Signer.Crypto;
+using Nexutron.Crypto;
 using Org.BouncyCastle.Math;
 
 namespace Nexutron.Extensions;

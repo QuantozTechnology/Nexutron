@@ -13,20 +13,9 @@ using Nethereum.Contracts.Standards.ERC20.ContractDefinition;
 
 namespace Nexutron.Contracts
 {
-    class TRC20ContractClient : IContractClient
+    class TRC20ContractClient(ILogger<TRC20ContractClient> logger, IWalletClient walletClient, ITransactionClient transactionClient) : IContractClient
     {
-        private readonly ILogger<TRC20ContractClient> _logger;
-        private readonly IWalletClient _walletClient;
-        private readonly ITransactionClient _transactionClient;
-
         public ContractProtocol Protocol => ContractProtocol.TRC20;
-
-        public TRC20ContractClient(ILogger<TRC20ContractClient> logger, IWalletClient walletClient, ITransactionClient transactionClient)
-        {
-            _logger = logger;
-            _walletClient = walletClient;
-            _transactionClient = transactionClient;
-        }
 
         private long GetDecimals(Wallet.WalletClient wallet, byte[] contractAddressBytes)
         {
@@ -43,7 +32,7 @@ namespace Nexutron.Contracts
                 Data = ByteString.CopyFrom(encodedHex.HexToByteArray()),
             };
 
-            var txnExt = wallet.TriggerConstantContract(trigger, headers: _walletClient.GetHeaders());
+            var txnExt = wallet.TriggerConstantContract(trigger, headers: walletClient.GetHeaders());
 
             var result = txnExt.ConstantResult[0].ToByteArray().ToHex();
 
@@ -55,7 +44,7 @@ namespace Nexutron.Contracts
             var contractAddressBytes = Base58Encoder.DecodeFromBase58Check(contractAddress);
             var callerAddressBytes = Base58Encoder.DecodeFromBase58Check(toAddress);
             var ownerAddressBytes = Base58Encoder.DecodeFromBase58Check(ownerAccount.Address);
-            var wallet = _walletClient.GetWalletClient();
+            var wallet = walletClient.GetWalletClient();
             var functionABI = ABITypedRegistry.GetFunctionABI<TransferFunction>();
             try
             {
@@ -92,11 +81,11 @@ namespace Nexutron.Contracts
                     Data = ByteString.CopyFrom(txInput.Data.HexToByteArray()),
                 };
 
-                var transactionExtention = await wallet.TriggerConstantContractAsync(trigger, headers: _walletClient.GetHeaders());
+                var transactionExtention = await wallet.TriggerConstantContractAsync(trigger, headers: walletClient.GetHeaders());
 
                 if (!transactionExtention.Result.Result)
                 {
-                    _logger.LogWarning($"[transfer]transfer failed, message={transactionExtention.Result.Message.ToStringUtf8()}.");
+                    logger.LogWarning($"[transfer]transfer failed, message={transactionExtention.Result.Message.ToStringUtf8()}.");
                     return null;
                 }
 
@@ -110,15 +99,15 @@ namespace Nexutron.Contracts
                 transaction.RawData.Data = ByteString.CopyFromUtf8(memo);
                 transaction.RawData.FeeLimit = feeLimit;
 
-                var transSign = _transactionClient.GetTransactionSign(transaction, ownerAccount.PrivateKey);
+                var transSign = transactionClient.GetTransactionSign(transaction, ownerAccount.PrivateKey);
 
-                var result = await _transactionClient.BroadcastTransactionAsync(transSign);
+                var result = await transactionClient.BroadcastTransactionAsync(transSign);
 
                 return transSign.GetTxid();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                logger.LogError(ex, ex.Message);
                 return null;
             }
         }
@@ -129,7 +118,7 @@ namespace Nexutron.Contracts
         {
             var contractAddressBytes = Base58Encoder.DecodeFromBase58Check(contractAddress);
             var ownerAddressBytes = Base58Encoder.DecodeFromBase58Check(ownerAccount.Address);
-            var wallet = _walletClient.GetWalletClient();
+            var wallet = walletClient.GetWalletClient();
             var functionABI = ABITypedRegistry.GetFunctionABI<BalanceOfFunction>();
             try
             {
@@ -150,7 +139,7 @@ namespace Nexutron.Contracts
                     Data = ByteString.CopyFrom(encodedHex.HexToByteArray()),
                 };
 
-                var transactionExtention = await wallet.TriggerConstantContractAsync(trigger, headers: _walletClient.GetHeaders());
+                var transactionExtention = await wallet.TriggerConstantContractAsync(trigger, headers: walletClient.GetHeaders());
 
                 if (!transactionExtention.Result.Result)
                 {
@@ -173,7 +162,7 @@ namespace Nexutron.Contracts
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                logger.LogError(ex, ex.Message);
                 throw;
             }
         }

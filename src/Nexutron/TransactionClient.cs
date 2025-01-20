@@ -8,21 +8,12 @@ using System.Threading.Tasks;
 
 namespace Nexutron
 {
-    class TransactionClient : ITransactionClient
+    class TransactionClient(IWalletClient walletClient, IOptions<NexutronOptions> options) : ITransactionClient
     {
-        private readonly IWalletClient _walletClient;
-        private readonly IOptions<NexutronOptions> _options;
-
-        public TransactionClient(IWalletClient walletClient, IOptions<NexutronOptions> options)
-        {
-            _walletClient = walletClient;
-            _options = options;
-        }
-
         public async Task<TransactionExtention> CreateTransactionAsync(string from, string to, long amount)
         {
-            var wallet = _walletClient.GetWalletClient();
-            var newestBlock = await wallet.GetNowBlock2Async(new EmptyMessage(), headers: _options.Value.GetgRPCHeaders());
+            var wallet = walletClient.GetWalletClient();
+            var newestBlock = await wallet.GetNowBlock2Async(new EmptyMessage(), headers: options.Value.GetgRPCHeaders());
 
             var transaction = TransactionHelper.CreateTransaction(newestBlock, from, to, amount, DateTime.UtcNow, 10 * 60 * 1000);
 
@@ -49,8 +40,8 @@ namespace Nexutron
 
         public async Task<Return> BroadcastTransactionAsync(Transaction transaction)
         {
-            var wallet = _walletClient.GetWalletClient();
-            var result = await wallet.BroadcastTransactionAsync(transaction, headers: _options.Value.GetgRPCHeaders());
+            var wallet = walletClient.GetWalletClient();
+            var result = await wallet.BroadcastTransactionAsync(transaction, headers: options.Value.GetgRPCHeaders());
 
             return result;
         }

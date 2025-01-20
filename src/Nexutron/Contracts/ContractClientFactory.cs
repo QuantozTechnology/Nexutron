@@ -3,21 +3,14 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Nexutron.Contracts
 {
-    class ContractClientFactory : IContractClientFactory
+    class ContractClientFactory(IServiceProvider serviceProvider) : IContractClientFactory
     {
-        private readonly IServiceProvider _serviceProvider;
-
-        public ContractClientFactory(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
-
         public IContractClient CreateClient(ContractProtocol protocol)
         {
 
             IContractClient client = protocol switch
             {
-                ContractProtocol.TRC20 => _serviceProvider.GetService<TRC20ContractClient>(),
+                ContractProtocol.TRC20 => serviceProvider.GetService<TRC20ContractClient>(),
                 _ => throw new NotImplementedException()
             };
 

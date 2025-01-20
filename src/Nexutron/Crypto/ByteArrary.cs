@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Nexutron
+namespace Nexutron.Crypto
 {
     public static class ByteArrary
     {
-        private static readonly byte[] Empty = Array.Empty<byte>();
+        private static readonly byte[] Empty = [];
 
         public static string ToHex(this byte[] value, bool prefix = false)
         {
@@ -69,7 +69,7 @@ namespace Nexutron
 
         private static byte[] HexToByteArrayInternal(string value)
         {
-            byte[] bytes = null;
+            byte[] bytes;
             if (string.IsNullOrEmpty(value))
             {
                 bytes = Empty;
