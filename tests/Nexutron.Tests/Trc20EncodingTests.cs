@@ -45,6 +45,21 @@ public class Trc20EncodingTests
     }
 
     [Fact]
+    public void Decodes_solidity_revert_reason()
+    {
+        var result = new Nexutron.Protocol.TransactionExtention
+        {
+            Result = new Nexutron.Protocol.Return { Result = true, Message = Google.Protobuf.ByteString.CopyFromUtf8("REVERT opcode executed") },
+        };
+        result.ConstantResult.Add(Google.Protobuf.ByteString.CopyFrom(FakeTronNode.RevertReason("insufficient balance")));
+
+        Assert.Equal("insufficient balance", TRC20ContractClient.GetFailureReason(result));
+
+        result.ConstantResult.Clear();
+        Assert.Equal("REVERT opcode executed", TRC20ContractClient.GetFailureReason(result));
+    }
+
+    [Fact]
     public void Rejects_more_precision_than_the_token_supports()
     {
         Assert.Throws<ArgumentException>(() => TokenAmount.ToRaw(0.0000001m, 6));

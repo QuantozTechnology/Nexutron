@@ -74,4 +74,13 @@ dotnet test
 The test suite checks addresses, transaction encoding, signatures and TRC20 ABI encoding against vectors
 produced with TronWeb, and runs the clients end to end against an in-process gRPC Tron node.
 
+`tests/Nexutron.LocalNode.Tests` runs the SDK against a real java-tron node on a private chain (Docker):
+it deploys a TRC20 token and checks TRX and TRC20 transfers on chain. These tests are skipped unless
+`NEXUTRON_LOCAL_NODE` is set:
+
+```bash
+./tests/local-node/start.sh
+NEXUTRON_LOCAL_NODE=localhost dotnet test tests/Nexutron.LocalNode.Tests
+```
+
 ![sample ui](/doc/pic1.png)

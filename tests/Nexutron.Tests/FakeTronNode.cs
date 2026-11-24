@@ -89,6 +89,14 @@ public sealed class FakeTronNode : Wallet.WalletBase, IAsyncDisposable
         return word;
     }
 
+    public static byte[] RevertReason(string reason)
+    {
+        var text = System.Text.Encoding.UTF8.GetBytes(reason);
+        var padded = new byte[(text.Length + 31) / 32 * 32];
+        text.CopyTo(padded, 0);
+        return new byte[] { 0x08, 0xc3, 0x79, 0xa0 }.Concat(Word(32)).Concat(Word(text.Length)).Concat(padded).ToArray();
+    }
+
     private static string AbiAddressToBase58(byte[] data, int offset) =>
         Base58Encoder.EncodeFromHex(data[(offset + 12)..(offset + 32)], 0x41);
 
@@ -112,6 +120,20 @@ public sealed class FakeTronNode : Wallet.WalletBase, IAsyncDisposable
                 break;
             case "70a08231": // balanceOf(address)
                 result.ConstantResult.Add(ByteString.CopyFrom(Word(TokenBalances.GetValueOrDefault(AbiAddressToBase58(data, 4)))));
+                break;
+            case "a9059cbb": // transfer(address,uint256) dry-run; a revert looks like java-tron's response
+                var amount = new BigInteger(data[36..68], isUnsigned: true, isBigEndian: true);
+                result.Transaction = new Transaction();
+                if (TokenBalances.GetValueOrDefault(AccountHelper.GetBase58Address(request.OwnerAddress)) < amount)
+                {
+                    result.Transaction.Ret.Add(new Transaction.Types.Result { Ret = Transaction.Types.Result.Types.code.Failed });
+                    result.Result.Message = ByteString.CopyFromUtf8("REVERT opcode executed");
+                    result.ConstantResult.Add(ByteString.CopyFrom(RevertReason("insufficient balance")));
+                }
+                else
+                {
+                    result.ConstantResult.Add(ByteString.CopyFrom(Word(1)));
+                }
                 break;
             default:
                 result.Result = new Return { Result = false, Code = Return.Types.response_code.ContractValidateError, Message = ByteString.CopyFromUtf8("REVERT") };

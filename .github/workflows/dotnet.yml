@@ -28,6 +28,15 @@ jobs:
         run: dotnet build --no-restore
       - name: Test
         run: dotnet test --no-build --verbosity normal
+      - name: Start local TRON node
+        run: ./tests/local-node/start.sh
+      - name: Test against local TRON node
+        env:
+          NEXUTRON_LOCAL_NODE: localhost
+        run: dotnet test tests/Nexutron.LocalNode.Tests --no-build --verbosity normal
+      - name: Local TRON node logs
+        if: failure()
+        run: docker logs --tail 200 nexutron-tron-node || true
 
       #Install and calculate the new version with GitVersion
       - name: Install GitVersion
