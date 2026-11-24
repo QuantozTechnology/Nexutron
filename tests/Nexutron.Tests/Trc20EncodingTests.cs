@@ -44,6 +44,35 @@ public class Trc20EncodingTests
         Assert.Equal(50_000_000_000m, TokenAmount.FromRaw(raw, 18));
     }
 
+    [Theory]
+    [InlineData(TestVectors.ToAddressHex + "00")]                    // overlong: would shift the recipient
+    [InlineData("424e92b786312e1a5111ee9312a96b65ae48100353")]       // 21 bytes without the 0x41 prefix
+    [InlineData("4e92b786312e1a5111ee9312a96b65ae481003")]           // too short
+    public void Rejects_malformed_recipient_addresses(string address)
+    {
+        Assert.Throws<ArgumentException>(() => TRC20ContractClient.EncodeTransfer(address, 1));
+    }
+
+    [Fact]
+    public void Accepts_20_byte_hex_recipient()
+    {
+        Assert.Equal(TestVectors.Trc20TransferData,
+            TRC20ContractClient.EncodeTransfer("0x4e92b786312e1a5111ee9312a96b65ae48100353", 1_500_000).ToHex());
+    }
+
+    [Fact]
+    public void Decimals_must_be_a_uint8_in_a_full_abi_word()
+    {
+        var word = new byte[32];
+        word[31] = 18;
+        Assert.Equal(18, TRC20ContractClient.DecodeDecimals(word));
+
+        word[28] = 1; // 2^24 + 18
+        Assert.Throws<InvalidOperationException>(() => TRC20ContractClient.DecodeDecimals(word));
+        Assert.Throws<InvalidOperationException>(() => TRC20ContractClient.DecodeDecimals(Array.Empty<byte>()));
+        Assert.Throws<InvalidOperationException>(() => TRC20ContractClient.DecodeUint256(new byte[31]));
+    }
+
     [Fact]
     public void Decodes_solidity_revert_reason()
     {

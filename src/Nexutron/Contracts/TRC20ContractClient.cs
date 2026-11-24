@@ -35,7 +35,9 @@ namespace Nexutron.Contracts
         internal static string ToAbiAddress(string tronAddress)
         {
             var bytes = AccountHelper.ParseAddress(tronAddress).ToByteArray();
-            if (bytes.Length < 20) throw new ArgumentException($"Invalid address: {tronAddress}", nameof(tronAddress));
+            // Only a 20 byte address, or 21 bytes with the 0x41 prefix: slicing anything longer would change the recipient.
+            var valid = bytes.Length == 20 || (bytes.Length == 21 && bytes[0] == 0x41);
+            if (!valid) throw new ArgumentException($"Invalid address: {tronAddress}", nameof(tronAddress));
             return "0x" + bytes.AsSpan(bytes.Length - 20).ToArray().ToHex();
         }
 
@@ -104,18 +106,33 @@ namespace Nexutron.Contracts
         private async Task<byte[]> CallConstantAsync(Wallet.WalletClient wallet, ByteString contractAddress, ByteString ownerAddress, byte[] data)
         {
             var result = await SimulateAsync(wallet, contractAddress, ownerAddress, data);
-            if (result.ConstantResult.Count == 0)
+            var output = result.ConstantResult.Count > 0 ? result.ConstantResult[0].ToByteArray() : null;
+            if (output == null || output.Length < 32)
             {
-                throw new InvalidOperationException("Constant call returned no result.");
+                throw new InvalidOperationException("Constant call returned no ABI word (is this a TRC20 contract?).");
             }
 
-            return result.ConstantResult[0].ToByteArray();
+            return output;
         }
 
         private async Task<int> GetDecimalsAsync(Wallet.WalletClient wallet, ByteString contractAddress, ByteString ownerAddress)
         {
             var output = await CallConstantAsync(wallet, contractAddress, ownerAddress, EncodeDecimals());
-            return (int)new BigInteger(output, isUnsigned: true, isBigEndian: true);
+            return DecodeDecimals(output);
+        }
+
+        /// <summary>decimals() is a uint8; reject anything else so a hostile contract cannot force huge powers of ten.</summary>
+        internal static int DecodeDecimals(byte[] output)
+        {
+            var value = DecodeUint256(output);
+            if (value > byte.MaxValue) throw new InvalidOperationException($"Invalid decimals() value: {value}.");
+            return (int)value;
+        }
+
+        internal static BigInteger DecodeUint256(byte[] output)
+        {
+            if (output == null || output.Length < 32) throw new InvalidOperationException("Expected a 32 byte ABI word.");
+            return new BigInteger(output.AsSpan(0, 32), isUnsigned: true, isBigEndian: true);
         }
 
         public async Task<string> TransferAsync(string contractAddress, ITronAccount ownerAccount, string toAddress, decimal amount, string memo, long feeLimit)
@@ -208,7 +225,7 @@ namespace Nexutron.Contracts
                 var decimals = await GetDecimalsAsync(wallet, contractAddressBytes, ownerAddressBytes);
                 var output = await CallConstantAsync(wallet, contractAddressBytes, ownerAddressBytes, EncodeBalanceOf(ownerAccount.Address));
 
-                var balance = new BigInteger(output, isUnsigned: true, isBigEndian: true);
+                var balance = DecodeUint256(output);
                 return TokenAmount.FromRaw(balance, decimals);
             }
             catch (Exception ex)
