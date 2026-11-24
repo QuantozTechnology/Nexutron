@@ -1,133 +1,77 @@
-# TestTronDotNet
+# Nexutron
 
-Code Sample:
+A .NET 8 SDK for the TRON blockchain: key and address handling, building and signing TRX transfers,
+TRC20 token balances and transfers, and typed gRPC clients for the full java-tron API
+(`Nexutron.Protocol`). Cryptography and ABI encoding are built on [Nethereum](https://github.com/Nethereum/Nethereum) 7.
 
-
-:white_check_mark: 1. Create Wallet
-
-
-```cs
-
-
-        public static void GenerateWalletOffline()
-        {
-
-            var key = TronECKey.GenerateKey(TronNetwork.MainNet);
-
-            var address = key.GetPublicAddress();
-
-            Console.WriteLine(address);
-            
-        }
-
-
-```
-
-:white_check_mark: 2.Create TRX tracation.
-
+## Setup
 
 ```cs
-
-          var walletPrivateKey = "62075119d64f17ebd3248df7a864cd84380fcb9e5771f0968af2167a25717bb2";
-
-            var ecKey = new TronECKey(walletPrivateKey, TronNetwork.MainNet);
-            var from = ecKey.GetPublicAddress();
-            //Receiving wallet
-            var to = "TH8fU6BLpU6EjqvZTWWSB1uhpEVxzT35Xj";
-
-            //Play 2 trx
-            var amount = 2 * 1_000_000L;
-
-            IServiceCollection services = new ServiceCollection();
-            services.AddTronDotNet(x =>
-            {
-                x.Network = TronNetwork.MainNet;
-                x.Channel = new GrpcChannelOption { Host = "3.225.171.164", Port = 50051 }; //https://developers.tron.network/docs/official-public-node
-                x.SolidityChannel = new GrpcChannelOption { Host = "3.225.171.164", Port = 50062 }; //https://developers.tron.network/docs/official-public-node
-                // x.ApiKey = "07rgc8e4-7as1-4d34-d334-fe40ai6gc542";
-                //I thought it was necessary to fill in, but it seems that it can be used without filling in
-                x.ApiKey = "apikey";  //https://www.trongrid.io/
-            });
-
-            services.AddLogging();
-            var service = services.BuildServiceProvider();
-            var transactionClient = service.GetService<ITransactionClient>();
-            var transactionExtension = transactionClient.CreateTransactionAsync(from, to, amount).Result;
-
-            var transactionSigned = transactionClient.GetTransactionSign(transactionExtension.Transaction, walletPrivateKey);
-
-            //Get sign
-            var signed = JsonConvert.SerializeObject(transactionSigned);
-
-            Console.WriteLine("-SIGN-");
-
-            Console.WriteLine(signed);
-            Console.WriteLine("-TXID-");
-            Console.WriteLine(transactionSigned.GetTxid());
-
-            //Send out
-            var result = transactionClient.BroadcastTransactionAsync(transactionSigned).Result;
-            Console.WriteLine("-RESULT-");
-            Console.WriteLine(JsonConvert.SerializeObject(result));
-
-
+IServiceCollection services = new ServiceCollection();
+services.AddTronDotNet(x =>
+{
+    // TronGrid's public gRPC endpoints are plaintext, so UseTls = false.
+    // Mainnet: grpc.trongrid.io:50051 / :50052, Nile testnet: grpc.nile.trongrid.io:50051 / :50061
+    x.Channel = new GrpcChannelOption { Host = "grpc.trongrid.io", Port = 50051, UseTls = false };
+    x.SolidityChannel = new GrpcChannelOption { Host = "grpc.trongrid.io", Port = 50052, UseTls = false };
+    x.ApiKey = "your-trongrid-api-key"; // optional, https://www.trongrid.io/
+});
+var provider = services.BuildServiceProvider();
 ```
 
+`GrpcChannelOption.UseTls` defaults to `true` (for nodes behind a TLS endpoint). Channels are created once and reused.
 
-:white_check_mark: 3.USDT(trc20) transation
-
+## Keys and addresses
 
 ```cs
+var key = TronECKey.GenerateKey();          // random secp256k1 key
+var address = key.GetPublicAddress();       // T... base58check address
+var privateKey = key.GetPrivateKey();       // 64 hex chars
 
-        /// <summary>
-        /// Transfer USDC
-        /// </summary>
-        public static void TestContractTransation()
-        {
-
-            //The private key of the transmitter
-            var walletPrivateKey = "62075119d64f17ebd3248df7a864cd84380fcb9e5771f0968af2167a25717bb2";
-
-            IServiceCollection services = new ServiceCollection();
-            services.AddTronDotNet(x =>
-            {
-                x.Network = TronNetwork.MainNet;
-                x.Channel = new GrpcChannelOption { Host = "3.225.171.164", Port = 50051 }; //https://developers.tron.network/docs/official-public-node
-                x.SolidityChannel = new GrpcChannelOption { Host = "3.225.171.164", Port = 50062 }; //https://developers.tron.network/docs/official-public-node
-                x.ApiKey = "apikey"; // //https://www.trongrid.io/
-            });
-
-
-            services.AddLogging();
-
-            var service = services.BuildServiceProvider();
-            var walletClient = service.GetService<IWalletClient>();
-
-            var account = walletClient.GetAccount(walletPrivateKey);
-
-            //USDT TOKEN
-            var contractAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
-
-            //Wallet
-            var to = "TH8fU6BLpU6EjqvZTWWSB1uhpEVxzT35Xj";
-
-            var amount = 99;
-            //Handling fee 10 TRX
-            var feeAmount = 10 * 1_000_000L;
-
-            var contractClientFactory = service.GetService<IContractClientFactory>();
-
-            var contractClient = contractClientFactory.CreateClient(ContractProtocol.TRC20);
-
-            //Remarks can only be in English
-            var result = contractClient.TransferAsync(contractAddress, account, to, amount, "Miladsoft", feeAmount).Result;
-
-            Console.WriteLine("-- RESULT --");
-            Console.WriteLine(JsonConvert.SerializeObject(result));
-
-        }
-
-
+var account = new TronAccount(privateKey);  // or IWalletClient.GetAccount / GenerateAccount
+var hex = AccountHelper.GetHexAddress(address);  // 41...
 ```
+
+## TRX transfer
+
+```cs
+var transactions = provider.GetRequiredService<ITransactionClient>();
+
+var amount = TronUnit.TRXToSun(2);  // 2 TRX = 2,000,000 sun
+var created = await transactions.CreateTransactionAsync(account.Address, "TH8fU6BLpU6EjqvZTWWSB1uhpEVxzT35Xj", amount, "optional memo");
+var signed = transactions.GetTransactionSign(created.Transaction, account.PrivateKey);
+var result = await transactions.BroadcastTransactionAsync(signed);
+
+Console.WriteLine($"{result.Result} {result.Code} txid={signed.GetTxid()}");
+```
+
+## TRC20 (e.g. USDT)
+
+```cs
+var trc20 = provider.GetRequiredService<IContractClientFactory>().CreateClient(ContractProtocol.TRC20);
+const string usdt = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+
+decimal balance = await trc20.BalanceOfAsync(usdt, account);
+
+// Amounts are in whole tokens; decimals are read from the contract. feeLimit is in sun.
+string txid = await trc20.TransferAsync(usdt, account, "TH8fU6BLpU6EjqvZTWWSB1uhpEVxzT35Xj", 12.5m, "memo", feeLimit: TronUnit.TRXToSun(30));
+// txid is null if triggering or broadcasting failed (details are logged).
+```
+
+`TokenAmount.ToRaw` / `TokenAmount.FromRaw` convert exactly between token amounts and on-chain integers.
+
+## Low level
+
+`IWalletClient.GetWalletClient()` and `GetSolidityClient()` return the generated gRPC clients for every java-tron
+API call; pass `IWalletClient.GetHeaders()` as headers to send the API key.
+
+## Tests
+
+```bash
+dotnet test
+```
+
+The test suite checks addresses, transaction encoding, signatures and TRC20 ABI encoding against vectors
+produced with TronWeb, and runs the clients end to end against an in-process gRPC Tron node.
 
 ![sample ui](/doc/pic1.png)

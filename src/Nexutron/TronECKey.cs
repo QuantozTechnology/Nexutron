@@ -25,16 +25,7 @@ namespace Nexutron
             _ecKey = ecKey;
         }
 
-        // internal TronECKey(TronNetwork network)
-        // {
-        //     _ecKey = new ECKey();
-        //     _network = network;
-        // }
-
-        // public static TronECKey GenerateKey(TronNetwork network)
-        // {
-        //     return new TronECKey(network);
-        // }
+        public static TronECKey GenerateKey() => TronECKeyGenerator.GenerateKey();
 
         internal static byte GetPublicAddressPrefix()
         {
@@ -72,7 +63,11 @@ namespace Nexutron
         {
             if (string.IsNullOrWhiteSpace(_privateKeyHex))
             {
-                _privateKeyHex = _ecKey.PrivateKey.D.ToByteArrayUnsigned().ToHex();
+                // Left-pad to 32 bytes: keys with leading zero bytes must still be 64 hex characters.
+                var d = _ecKey.PrivateKey.D.ToByteArrayUnsigned();
+                var padded = new byte[32];
+                Array.Copy(d, 0, padded, 32 - d.Length, d.Length);
+                _privateKeyHex = padded.ToHex();
             }
             return _privateKeyHex;
         }

@@ -52,8 +52,8 @@ namespace TestTronDotNet
             IServiceCollection services = new ServiceCollection();
             services.AddTronDotNet(x =>
             {
-                x.Channel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50051 };
-                x.SolidityChannel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50052 };
+                x.Channel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50051, UseTls = false };
+                x.SolidityChannel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50052, UseTls = false };
                 //I thought it was necessary to fill in, but it seems that it can be used without filling in
                 x.ApiKey = "apikey";
             });
@@ -92,8 +92,8 @@ namespace TestTronDotNet
             IServiceCollection services = new ServiceCollection();
             services.AddTronDotNet(x =>
             {
-                x.Channel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50051 };
-                x.SolidityChannel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50052 };
+                x.Channel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50051, UseTls = false };
+                x.SolidityChannel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50052, UseTls = false };
                 // x.ApiKey = "07rgc8e4-7as1-4d34-d334-fe40ai6gc542";
                 //I thought it was necessary to fill in, but it seems that it can be used without filling in
                 x.ApiKey = "apikey";

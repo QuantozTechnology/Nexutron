@@ -1,33 +1,23 @@
-﻿using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
- 
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
 namespace Nexutron
 {
     public static class TronDotNetServiceExtension
     {
-        //public static StowayNet.IStowayNetBuilder AddTronDotNet(StowayNet.IStowayNetBuilder builder, Action<TronDotNetOptions> setupAction)
-        //{
-        //    builder.Services.AddTronDotNet(setupAction);
-
-        //    return builder;
-        //}
-
         public static IServiceCollection AddTronDotNet(this IServiceCollection services, Action<NexutronOptions> setupAction)
         {
-            var options = new NexutronOptions();
+            ArgumentNullException.ThrowIfNull(setupAction);
 
-            setupAction(options);
-
-            services.AddTransient<ITransactionClient, TransactionClient>();
-            services.AddTransient<IGrpcChannelClient, GrpcChannelClient>();
-            services.AddTransient<ITronClient, TronClient>();
-            services.AddTransient<IWalletClient, WalletClient>();
-            services.AddSingleton<Contracts.IContractClientFactory, Contracts.ContractClientFactory>();
-            services.AddTransient<Contracts.TRC20ContractClient>();
+            services.AddOptions();
+            services.AddLogging();
+            services.TryAddSingleton<IGrpcChannelClient, GrpcChannelClient>();
+            services.TryAddTransient<ITransactionClient, TransactionClient>();
+            services.TryAddTransient<ITronClient, TronClient>();
+            services.TryAddTransient<IWalletClient, WalletClient>();
+            services.TryAddSingleton<Contracts.IContractClientFactory, Contracts.ContractClientFactory>();
+            services.TryAddTransient<Contracts.TRC20ContractClient>();
             services.Configure(setupAction);
 
             return services;

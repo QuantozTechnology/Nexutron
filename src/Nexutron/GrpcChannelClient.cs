@@ -1,26 +1,34 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using System;
 using Grpc.Net.Client;
+using Microsoft.Extensions.Options;
+using Nexutron.Helpers;
 
 namespace Nexutron;
 
-class GrpcChannelClient : IGrpcChannelClient
+/// <summary>
+/// Owns the gRPC channels for the configured full node and solidity node. Channels are created lazily
+/// once and reused, as recommended for <see cref="GrpcChannel"/>.
+/// </summary>
+sealed class GrpcChannelClient : IGrpcChannelClient, IDisposable
 {
-    private readonly ILogger<GrpcChannelClient> _logger;
-    private readonly IOptions<NexutronOptions> _options;
+    private readonly Lazy<GrpcChannel> _channel;
+    private readonly Lazy<GrpcChannel> _solidityChannel;
 
-    public GrpcChannelClient(ILogger<GrpcChannelClient> logger, IOptions<NexutronOptions> options)
+    public GrpcChannelClient(IOptions<NexutronOptions> options)
     {
-        _logger = logger;
-        _options = options;
+        _channel = new Lazy<GrpcChannel>(() => GrpcChannelClientHelpers.CreateChannel(
+            options.Value.Channel ?? throw new InvalidOperationException($"{nameof(NexutronOptions)}.{nameof(NexutronOptions.Channel)} is not configured.")));
+        _solidityChannel = new Lazy<GrpcChannel>(() => GrpcChannelClientHelpers.CreateChannel(
+            options.Value.SolidityChannel ?? throw new InvalidOperationException($"{nameof(NexutronOptions)}.{nameof(NexutronOptions.SolidityChannel)} is not configured.")));
     }
 
-    public GrpcChannel GetProtocol()
+    public GrpcChannel GetProtocol() => _channel.Value;
+
+    public GrpcChannel GetSolidityProtocol() => _solidityChannel.Value;
+
+    public void Dispose()
     {
-        return Helpers.GrpcChannelClientHelpers.GetProtocol(_options.Value.Channel.Host, _options.Value.Channel.Port);
-    }
-    public GrpcChannel GetSolidityProtocol()
-    {
-        return Helpers.GrpcChannelClientHelpers.GetSolidityProtocol(_options.Value.SolidityChannel.Host, _options.Value.SolidityChannel.Port);
+        if (_channel.IsValueCreated) _channel.Value.Dispose();
+        if (_solidityChannel.IsValueCreated) _solidityChannel.Value.Dispose();
     }
 }

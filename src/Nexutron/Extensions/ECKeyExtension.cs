@@ -1,10 +1,6 @@
 using System;
 using Nethereum.Signer;
 using Nethereum.Signer.Crypto;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Generators;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Security;
 
 namespace Nexutron.Extensions;
 
@@ -18,33 +14,16 @@ public static class ECKeyExtension
         Array.Copy(pubKey, 1, arr, 0, arr.Length);
         return arr;
     }
-
 }
 
 public static class TronECKeyGenerator
 {
-    private static readonly SecureRandom SecureRandom = new();
-
+    /// <summary>
+    /// Generates a new random secp256k1 key pair (Tron uses the same curve as Ethereum).
+    /// </summary>
     public static TronECKey GenerateKey()
     {
-        var gen = new ECKeyPairGenerator("EC");
-        var keyGenParam = new KeyGenerationParameters(SecureRandom, 256);
-        gen.Init(keyGenParam);
-        var keyPair = gen.GenerateKeyPair();
-        var privateBytes = ((ECPrivateKeyParameters)keyPair.Private).D.ToByteArrayUnsigned();
-        if (privateBytes.Length != 32)
-            return GenerateKey();
-        return new TronECKey(privateBytes, true);
+        var ethKey = EthECKey.GenerateKey();
+        return new TronECKey(ethKey.GetPrivateKeyAsBytes(), true);
     }
 }
-
-// public static class TronECKey : ECKey
-// {
-//     public ECKey GenerateTronECKey()
-//     {
-//         var generator = new ECKeyPairGenerator("EC");
-//         generator.Init(new ECKeyGenerationParameters(CURVE, _secureRandom));
-//         var pair = generator.GenerateKeyPair();
-//         return new ECKey(pair.Private, true);
-//     }
-// }
