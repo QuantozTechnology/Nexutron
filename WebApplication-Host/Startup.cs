@@ -26,7 +26,7 @@ namespace WebApplication_Host
         {
             services.AddControllersWithViews();
 
-            services.AddTronDotNet(x =>
+            services.AddNexutron(x =>
             {
                 x.Channel = new GrpcChannelOption { Host = "3.225.171.164", Port = 50051, UseTls = false }; //https://developers.tron.network/docs/official-public-node
                 x.SolidityChannel = new GrpcChannelOption { Host = "3.225.171.164", Port = 50061, UseTls = false }; //https://developers.tron.network/docs/official-public-node

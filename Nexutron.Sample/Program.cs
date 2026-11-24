@@ -5,7 +5,7 @@ using Nexutron;
 using Nexutron.Contracts;
 using Nexutron.Extensions;
 
-namespace TestTronDotNet
+namespace Nexutron.Sample
 {
     class Program
     {
@@ -50,7 +50,7 @@ namespace TestTronDotNet
             var amount = 2 * 1_000_000L;
 
             IServiceCollection services = new ServiceCollection();
-            services.AddTronDotNet(x =>
+            services.AddNexutron(x =>
             {
                 x.Channel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50051, UseTls = false };
                 x.SolidityChannel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50052, UseTls = false };
@@ -90,7 +90,7 @@ namespace TestTronDotNet
             var walletPrivateKey = "62075119d64f17ebd3248df7a864cd84380fcb9e5771f0968af2167a25717bb2";
 
             IServiceCollection services = new ServiceCollection();
-            services.AddTronDotNet(x =>
+            services.AddNexutron(x =>
             {
                 x.Channel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50051, UseTls = false };
                 x.SolidityChannel = new GrpcChannelOption { Host = "grpc.shasta.trongrid.io", Port = 50052, UseTls = false };
@@ -122,7 +122,7 @@ namespace TestTronDotNet
             var contractClient = contractClientFactory.CreateClient(ContractProtocol.TRC20);
 
             //Remarks can only be in English
-            var result = contractClient.TransferAsync(contractAddress, account, to, amount, "Miladsoft", feeAmount).Result;
+            var result = contractClient.TransferAsync(contractAddress, account, to, amount, "Nexutron", feeAmount).Result;
 
             Console.WriteLine("-- RESULT --");
             Console.WriteLine(JsonConvert.SerializeObject(result));

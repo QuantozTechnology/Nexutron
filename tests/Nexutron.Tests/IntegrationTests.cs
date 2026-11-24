@@ -23,7 +23,7 @@ public class IntegrationTests : IAsyncLifetime
         _node = await FakeTronNode.StartAsync();
 
         var services = new ServiceCollection();
-        services.AddTronDotNet(x =>
+        services.AddNexutron(x =>
         {
             x.Channel = new GrpcChannelOption { Host = "localhost", Port = _node.Port, UseTls = false };
             x.SolidityChannel = new GrpcChannelOption { Host = "localhost", Port = _node.Port, UseTls = false };
@@ -135,7 +135,7 @@ public class IntegrationTests : IAsyncLifetime
     public async Task Works_without_an_api_key()
     {
         var services = new ServiceCollection();
-        services.AddTronDotNet(x =>
+        services.AddNexutron(x =>
         {
             x.Channel = new GrpcChannelOption { Host = "localhost", Port = _node.Port, UseTls = false };
             x.SolidityChannel = x.Channel;

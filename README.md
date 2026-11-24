@@ -8,7 +8,7 @@ TRC20 token balances and transfers, and typed gRPC clients for the full java-tro
 
 ```cs
 IServiceCollection services = new ServiceCollection();
-services.AddTronDotNet(x =>
+services.AddNexutron(x =>
 {
     // TronGrid's public gRPC endpoints are plaintext, so UseTls = false.
     // Mainnet: grpc.trongrid.io:50051 / :50052, Nile testnet: grpc.nile.trongrid.io:50051 / :50061

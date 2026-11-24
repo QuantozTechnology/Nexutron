@@ -37,7 +37,7 @@ public sealed class LocalNodeFixture : IAsyncLifetime
         if (string.IsNullOrWhiteSpace(host)) return;
 
         var services = new ServiceCollection();
-        services.AddTronDotNet(x =>
+        services.AddNexutron(x =>
         {
             x.Channel = new GrpcChannelOption { Host = host, Port = 50051, UseTls = false };
             x.SolidityChannel = new GrpcChannelOption { Host = host, Port = 50061, UseTls = false };
