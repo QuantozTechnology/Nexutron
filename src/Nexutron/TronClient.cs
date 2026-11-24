@@ -10,7 +10,7 @@ using Nexutron.Protocol;
 
 namespace Nexutron
 {
-    class TronClient(IGrpcChannelClient channelClient, IWalletClient walletClient, ITransactionClient transactionClient) : ITronClient
+    class TronClient(IGrpcChannelClient channelClient, IWalletClient walletClient, ITransactionClient transactionClient, IContractClientFactory contractClientFactory) : ITronClient
     {
         private readonly IGrpcChannelClient _channelClient = channelClient;
         private readonly IWalletClient _walletClient = walletClient;
@@ -32,7 +32,7 @@ namespace Nexutron
 
         public IContractClient GetContract()
         {
-            return null;
+            return contractClientFactory.CreateClient(ContractProtocol.TRC20);
         }
     }
 }

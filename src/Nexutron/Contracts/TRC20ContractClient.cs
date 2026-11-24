@@ -1,15 +1,16 @@
-﻿using Google.Protobuf;
-using Microsoft.Extensions.Logging;
 using System;
+using System.Numerics;
+using System.Text;
 using System.Threading.Tasks;
-using Nethereum.ABI.FunctionEncoding;
-using Nethereum.ABI.Model;
+using Google.Protobuf;
+using Microsoft.Extensions.Logging;
 using Nethereum.Contracts;
+using Nethereum.Contracts.Standards.ERC20.ContractDefinition;
 using Nexutron.Accounts;
 using Nexutron.Crypto;
 using Nexutron.Extensions;
+using Nexutron.Helpers;
 using Nexutron.Protocol;
-using Nethereum.Contracts.Standards.ERC20.ContractDefinition;
 
 namespace Nexutron.Contracts
 {
@@ -28,156 +29,210 @@ namespace Nexutron.Contracts
             _transactionClient = transactionClient;
         }
 
-        private long GetDecimals(Wallet.WalletClient wallet, byte[] contractAddressBytes)
+        /// <summary>
+        /// Tron addresses are 21 bytes (0x41 prefix + 20 bytes); the ABI address type takes the trailing 20 bytes.
+        /// </summary>
+        internal static string ToAbiAddress(string tronAddress)
         {
-            var trc20Decimals = new DecimalsFunction();
+            var bytes = AccountHelper.ParseAddress(tronAddress).ToByteArray();
+            // Only a 20 byte address, or 21 bytes with the 0x41 prefix: slicing anything longer would change the recipient.
+            var valid = bytes.Length == 20 || (bytes.Length == 21 && bytes[0] == 0x41);
+            if (!valid) throw new ArgumentException($"Invalid address: {tronAddress}", nameof(tronAddress));
+            return "0x" + bytes.AsSpan(bytes.Length - 20).ToArray().ToHex();
+        }
 
-            var callEncoder = new FunctionCallEncoder();
-            var functionABI = ABITypedRegistry.GetFunctionABI<DecimalsFunction>();
+        internal static byte[] EncodeTransfer(string toAddress, BigInteger rawAmount)
+        {
+            var transfer = new TransferFunction { To = ToAbiAddress(toAddress), Value = rawAmount };
+            return transfer.GetCallData();
+        }
 
-            var encodedHex = callEncoder.EncodeRequest(trc20Decimals, functionABI.Sha3Signature);
+        internal static byte[] EncodeBalanceOf(string ownerAddress)
+        {
+            return new BalanceOfFunction { Owner = ToAbiAddress(ownerAddress) }.GetCallData();
+        }
 
+        internal static byte[] EncodeDecimals()
+        {
+            return new DecimalsFunction().GetCallData();
+        }
+
+        /// <summary>
+        /// Extracts the reason of a failed constant call: the Solidity Error(string) message if present, else the node's message.
+        /// </summary>
+        internal static string GetFailureReason(TransactionExtention result)
+        {
+            if (result.ConstantResult.Count > 0)
+            {
+                var output = result.ConstantResult[0].ToByteArray();
+                // Error(string): 0x08c379a0 ++ offset ++ length ++ utf8 bytes
+                if (output.Length >= 68 && output.AsSpan(0, 4).SequenceEqual(new byte[] { 0x08, 0xc3, 0x79, 0xa0 }))
+                {
+                    var length = (int)new BigInteger(output.AsSpan(36, 32), isUnsigned: true, isBigEndian: true);
+                    if (length >= 0 && 68 + length <= output.Length)
+                    {
+                        return Encoding.UTF8.GetString(output, 68, length);
+                    }
+                }
+            }
+
+            return result.Result?.Message.ToStringUtf8();
+        }
+
+        /// <summary>
+        /// Executes the call on the node without creating a transaction. A revert is reported in Transaction.Ret
+        /// while Result.Result stays true, so both are checked.
+        /// </summary>
+        private async Task<TransactionExtention> SimulateAsync(Wallet.WalletClient wallet, ByteString contractAddress, ByteString ownerAddress, byte[] data)
+        {
             var trigger = new TriggerSmartContract
             {
-                ContractAddress = ByteString.CopyFrom(contractAddressBytes),
-                Data = ByteString.CopyFrom(encodedHex.HexToByteArray()),
+                ContractAddress = contractAddress,
+                Data = ByteString.CopyFrom(data),
             };
+            if (ownerAddress != null) trigger.OwnerAddress = ownerAddress;
 
-            var txnExt = wallet.TriggerConstantContract(trigger, headers: _walletClient.GetHeaders());
+            var result = await wallet.TriggerConstantContractAsync(trigger, headers: _walletClient.GetHeaders());
 
-            var result = txnExt.ConstantResult[0].ToByteArray().ToHex();
+            var reverted = result.Transaction?.Ret.Count > 0 && result.Transaction.Ret[0].Ret == Transaction.Types.Result.Types.code.Failed;
+            if (result.Result == null || !result.Result.Result || reverted)
+            {
+                throw new InvalidOperationException($"Contract call failed: {GetFailureReason(result)}");
+            }
 
-            return new FunctionCallDecoder().DecodeOutput<long>(result, new Parameter("uint8", "d"));
+            return result;
+        }
+
+        private async Task<byte[]> CallConstantAsync(Wallet.WalletClient wallet, ByteString contractAddress, ByteString ownerAddress, byte[] data)
+        {
+            var result = await SimulateAsync(wallet, contractAddress, ownerAddress, data);
+            var output = result.ConstantResult.Count > 0 ? result.ConstantResult[0].ToByteArray() : null;
+            if (output == null || output.Length < 32)
+            {
+                throw new InvalidOperationException("Constant call returned no ABI word (is this a TRC20 contract?).");
+            }
+
+            return output;
+        }
+
+        private async Task<int> GetDecimalsAsync(Wallet.WalletClient wallet, ByteString contractAddress, ByteString ownerAddress)
+        {
+            var output = await CallConstantAsync(wallet, contractAddress, ownerAddress, EncodeDecimals());
+            return DecodeDecimals(output);
+        }
+
+        /// <summary>decimals() is a uint8; reject anything else so a hostile contract cannot force huge powers of ten.</summary>
+        internal static int DecodeDecimals(byte[] output)
+        {
+            var value = DecodeUint256(output);
+            if (value > byte.MaxValue) throw new InvalidOperationException($"Invalid decimals() value: {value}.");
+            return (int)value;
+        }
+
+        internal static BigInteger DecodeUint256(byte[] output)
+        {
+            if (output == null || output.Length < 32) throw new InvalidOperationException("Expected a 32 byte ABI word.");
+            return new BigInteger(output.AsSpan(0, 32), isUnsigned: true, isBigEndian: true);
         }
 
         public async Task<string> TransferAsync(string contractAddress, ITronAccount ownerAccount, string toAddress, decimal amount, string memo, long feeLimit)
         {
-            var contractAddressBytes = Base58Encoder.DecodeFromBase58Check(contractAddress);
-            var callerAddressBytes = Base58Encoder.DecodeFromBase58Check(toAddress);
-            var ownerAddressBytes = Base58Encoder.DecodeFromBase58Check(ownerAccount.Address);
-            var wallet = _walletClient.GetWalletClient();
-            var functionABI = ABITypedRegistry.GetFunctionABI<TransferFunction>();
+            ArgumentNullException.ThrowIfNull(ownerAccount);
+
             try
             {
+                var wallet = _walletClient.GetWalletClient();
+                var contractAddressBytes = AccountHelper.ParseAddress(contractAddress);
+                var ownerAddressBytes = AccountHelper.ParseAddress(ownerAccount.Address);
 
+                var decimals = await GetDecimalsAsync(wallet, contractAddressBytes, ownerAddressBytes);
+                var rawAmount = TokenAmount.ToRaw(amount, decimals);
 
-                var toAddressBytes = new byte[20];
-                Array.Copy(callerAddressBytes, 1, toAddressBytes, 0, toAddressBytes.Length);
+                var data = EncodeTransfer(toAddress, rawAmount);
 
-                var toAddressHex = "0x" + toAddressBytes.ToHex();
-
-                var decimals = GetDecimals(wallet, contractAddressBytes);
-
-                var tokenAmount = amount;
-                if (decimals > 0)
+                // Dry-run first: TriggerContract only builds the transaction, so a transfer that would revert
+                // (e.g. insufficient token balance) would otherwise be broadcast and burn its fee on chain.
+                try
                 {
-                    tokenAmount = amount * Convert.ToDecimal(Math.Pow(10, decimals));
+                    await SimulateAsync(wallet, contractAddressBytes, ownerAddressBytes, data);
                 }
-
-                // TODO: Doublecheck it does not care about the address format (Hex/Base58)
-                var trc20Transfer = new TransferFunction
+                catch (InvalidOperationException ex)
                 {
-                    FromAddress = ownerAccount.Address,
-                    To = toAddressHex,
-                    Value = Convert.ToInt64(tokenAmount),
-                };
-
-                var txInput = trc20Transfer.CreateTransactionInput(contractAddress);
-
+                    _logger.LogWarning("[transfer] simulation failed, not broadcasting: {Message}", ex.Message);
+                    return null;
+                }
 
                 var trigger = new TriggerSmartContract
                 {
-                    ContractAddress = ByteString.CopyFrom(contractAddressBytes),
-                    OwnerAddress = ByteString.CopyFrom(ownerAddressBytes),
-                    Data = ByteString.CopyFrom(txInput.Data.HexToByteArray()),
+                    ContractAddress = contractAddressBytes,
+                    OwnerAddress = ownerAddressBytes,
+                    Data = ByteString.CopyFrom(data),
                 };
 
-                var transactionExtention = await wallet.TriggerConstantContractAsync(trigger, headers: _walletClient.GetHeaders());
+                // TriggerContract (not TriggerConstantContract) builds the state changing transaction to sign.
+                var transactionExtention = await wallet.TriggerContractAsync(trigger, headers: _walletClient.GetHeaders());
 
-                if (!transactionExtention.Result.Result)
+                if (transactionExtention.Result == null || !transactionExtention.Result.Result)
                 {
-                    _logger.LogWarning($"[transfer]transfer failed, message={transactionExtention.Result.Message.ToStringUtf8()}.");
+                    _logger.LogWarning("[transfer] trigger failed, code={Code}, message={Message}.",
+                        transactionExtention.Result?.Code, transactionExtention.Result?.Message.ToStringUtf8());
                     return null;
                 }
 
                 var transaction = transactionExtention.Transaction;
 
-                if (transaction.Ret.Count > 0 && transaction.Ret[0].Ret == Nexutron.Protocol.Transaction.Types.Result.Types.code.Failed)
+                if (transaction.Ret.Count > 0 && transaction.Ret[0].Ret == Transaction.Types.Result.Types.code.Failed)
                 {
+                    _logger.LogWarning("[transfer] transaction execution failed.");
                     return null;
                 }
 
-                transaction.RawData.Data = ByteString.CopyFromUtf8(memo);
+                if (!string.IsNullOrEmpty(memo))
+                {
+                    transaction.RawData.Data = ByteString.CopyFrom(Encoding.UTF8.GetBytes(memo));
+                }
                 transaction.RawData.FeeLimit = feeLimit;
 
                 var transSign = _transactionClient.GetTransactionSign(transaction, ownerAccount.PrivateKey);
 
-                var result = await _transactionClient.BroadcastTransactionAsync(transSign);
+                var broadcast = await _transactionClient.BroadcastTransactionAsync(transSign);
+                if (!broadcast.Result)
+                {
+                    _logger.LogWarning("[transfer] broadcast failed, code={Code}, message={Message}.",
+                        broadcast.Code, broadcast.Message.ToStringUtf8());
+                    return null;
+                }
 
                 return transSign.GetTxid();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "[transfer] {Message}", ex.Message);
                 return null;
             }
         }
 
-
-
         public async Task<decimal> BalanceOfAsync(string contractAddress, ITronAccount ownerAccount)
         {
-            var contractAddressBytes = Base58Encoder.DecodeFromBase58Check(contractAddress);
-            var ownerAddressBytes = Base58Encoder.DecodeFromBase58Check(ownerAccount.Address);
-            var wallet = _walletClient.GetWalletClient();
-            var functionABI = ABITypedRegistry.GetFunctionABI<BalanceOfFunction>();
+            ArgumentNullException.ThrowIfNull(ownerAccount);
+
             try
             {
-                var addressBytes = new byte[20];
-                Array.Copy(ownerAddressBytes, 1, addressBytes, 0, addressBytes.Length);
+                var wallet = _walletClient.GetWalletClient();
+                var contractAddressBytes = AccountHelper.ParseAddress(contractAddress);
+                var ownerAddressBytes = AccountHelper.ParseAddress(ownerAccount.Address);
 
-                var addressBytesHex = "0x" + addressBytes.ToHex();
+                var decimals = await GetDecimalsAsync(wallet, contractAddressBytes, ownerAddressBytes);
+                var output = await CallConstantAsync(wallet, contractAddressBytes, ownerAddressBytes, EncodeBalanceOf(ownerAccount.Address));
 
-                var balanceOf = new BalanceOfFunction { Owner = addressBytesHex };
-                var decimals = GetDecimals(wallet, contractAddressBytes);
-
-                var encodedHex = new FunctionCallEncoder().EncodeRequest(balanceOf, functionABI.Sha3Signature);
-
-                var trigger = new TriggerSmartContract
-                {
-                    ContractAddress = ByteString.CopyFrom(contractAddressBytes),
-                    OwnerAddress = ByteString.CopyFrom(ownerAddressBytes),
-                    Data = ByteString.CopyFrom(encodedHex.HexToByteArray()),
-                };
-
-                var transactionExtention = await wallet.TriggerConstantContractAsync(trigger, headers: _walletClient.GetHeaders());
-
-                if (!transactionExtention.Result.Result)
-                {
-                    throw new Exception(transactionExtention.Result.Message.ToStringUtf8());
-                }
-                if (transactionExtention.ConstantResult.Count == 0)
-                {
-                    throw new Exception($"result error, ConstantResult length=0.");
-                }
-
-                var result = new FunctionCallDecoder().DecodeFunctionOutput<BalanceOfOutputDTO>(transactionExtention.ConstantResult[0].ToByteArray().ToHex());
-
-                var balance = Convert.ToDecimal(result.Balance);
-                if (decimals > 0)
-                {
-                    balance /= Convert.ToDecimal(Math.Pow(10, decimals));
-                }
-
-                return balance;
+                var balance = DecodeUint256(output);
+                return TokenAmount.FromRaw(balance, decimals);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "[balanceOf] {Message}", ex.Message);
                 throw;
             }
         }
-
     }
-
 }

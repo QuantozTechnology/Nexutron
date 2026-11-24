@@ -1,9 +1,5 @@
-﻿using Grpc.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Grpc.Core;
+using Nexutron.Helpers;
 
 namespace Nexutron
 {
@@ -17,10 +13,7 @@ namespace Nexutron
 
         internal Metadata GetgRPCHeaders()
         {
-            return new Metadata
-            {
-                { "TRON-PRO-API-KEY", ApiKey }
-            };
+            return WalletHelper.GetHeaders(ApiKey);
         }
     }
 }
