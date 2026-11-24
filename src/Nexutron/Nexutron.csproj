@@ -2,16 +2,20 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <PackageId>Nexutron</PackageId>
+    <Title>Nexutron</Title>
+    <Product>Nexutron</Product>
     <Authors>Quantoz Technology</Authors>
     <Version>0.5.0</Version>
     <PackageProjectUrl>https://github.com/QuantozTechnology/Nexutron</PackageProjectUrl>
-    <PackageTags>tron, tron protocol, tron grpc</PackageTags>
+    <PackageTags>nexutron;tron;trx;trc20;blockchain;grpc;quantoz</PackageTags>
     <Company>Quantoz Technology</Company>
     <Copyright>Copyright (c) 2026 Quantoz Technology. Based on TronDotNet, copyright (c) 2021 Milad Raeisi (miladsoft).</Copyright>
     <Description>Nexutron is a .NET SDK for working with the TRON blockchain: keys and addresses, TRX and TRC20 transfers, and typed gRPC clients for the java-tron API.
 Based on TronDotNet by Milad Raeisi (https://github.com/miladsoft/TronDotNet).</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/QuantozTechnology/Nexutron</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>Release notes are at https://github.com/QuantozTechnology/Nexutron/releases</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>

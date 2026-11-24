@@ -3,6 +3,9 @@
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<Version>0.5.0</Version>
+		<PackageId>Nexutron.Protocol</PackageId>
+		<Title>Nexutron Protocol</Title>
+		<Product>Nexutron.Protocol</Product>
 		<Authors>Quantoz Technology</Authors>
 		<Company>Quantoz Technology</Company>
 		<Copyright>Copyright (c) 2026 Quantoz Technology. Based on TronNet, copyright (c) 2021 Milad Raeisi (miladsoft).</Copyright>
@@ -12,7 +15,8 @@ Based on TronNet.Protocol by Milad Raeisi (https://github.com/miladsoft/TronNet)
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/QuantozTechnology/Nexutron</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/QuantozTechnology/Nexutron</RepositoryUrl>
-		<PackageTags>tron, tron protocol, tron grpc</PackageTags>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>nexutron;tron;trx;trc20;blockchain;grpc;quantoz</PackageTags>
 		<PackageReleaseNotes>Release notes are at https://github.com/QuantozTechnology/Nexutron/releases</PackageReleaseNotes>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>
