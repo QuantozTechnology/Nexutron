@@ -3,9 +3,11 @@
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<Version>0.5.0</Version>
-		<Authors>Miladsoft</Authors>
-		<Company>SeniorBlockchain</Company>
-		<Description>TronNet.Protocol</Description>
+		<Authors>Quantoz Technology</Authors>
+		<Company>Quantoz Technology</Company>
+		<Copyright>Copyright (c) 2026 Quantoz Technology. Based on TronNet, copyright (c) 2021 Milad Raeisi (miladsoft).</Copyright>
+		<Description>Generated gRPC clients and protobuf types for the TRON (java-tron) API, used by Nexutron.
+Based on TronNet.Protocol by Milad Raeisi (https://github.com/miladsoft/TronNet).</Description>
 		<IncludeHttpRuleProtos>true</IncludeHttpRuleProtos>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageProjectUrl>https://github.com/QuantozTechnology/Nexutron</PackageProjectUrl>

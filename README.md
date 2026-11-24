@@ -84,3 +84,9 @@ NEXUTRON_LOCAL_NODE=localhost dotnet test tests/Nexutron.LocalNode.Tests
 ```
 
 ![sample ui](/doc/pic1.png)
+
+## Credits
+
+Nexutron is maintained by [Quantoz Technology](https://github.com/QuantozTechnology). It is based on
+[TronDotNet](https://github.com/miladsoft/TronDotNet) and [TronNet](https://github.com/miladsoft/TronNet)
+by Milad Raeisi ([@miladsoft](https://github.com/miladsoft)), released under the MIT License.
