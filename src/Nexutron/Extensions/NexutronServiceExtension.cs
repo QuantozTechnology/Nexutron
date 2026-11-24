@@ -4,9 +4,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Nexutron
 {
-    public static class TronDotNetServiceExtension
+    public static class NexutronServiceExtension
     {
-        public static IServiceCollection AddTronDotNet(this IServiceCollection services, Action<NexutronOptions> setupAction)
+        public static IServiceCollection AddNexutron(this IServiceCollection services, Action<NexutronOptions> setupAction)
         {
             ArgumentNullException.ThrowIfNull(setupAction);
 

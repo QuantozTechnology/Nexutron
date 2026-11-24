@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nexutron", "src\Nexutron\Ne
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{52F5F682-1C4D-434D-B5AE-D6A297C9531F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestTronDotNet", "TestTronDotNet\TestTronDotNet.csproj", "{6562BC49-ADC0-4DC4-B059-6CD71E26D523}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nexutron.Sample", "Nexutron.Sample\Nexutron.Sample.csproj", "{6562BC49-ADC0-4DC4-B059-6CD71E26D523}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication-Host", "WebApplication-Host\WebApplication-Host.csproj", "{109BF967-6B95-4B6E-8409-0CF9393F9C90}"
 EndProject
