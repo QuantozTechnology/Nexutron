@@ -8,10 +8,10 @@
 		<Description>TronNet.Protocol</Description>
 		<IncludeHttpRuleProtos>true</IncludeHttpRuleProtos>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageProjectUrl>https://github.com/miladsoft/TronNet</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/miladsoft/TronNet</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/QuantozTechnology/Nexutron</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/QuantozTechnology/Nexutron</RepositoryUrl>
 		<PackageTags>tron, tron protocol, tron grpc</PackageTags>
-		<PackageReleaseNotes>Release notes are at https://github.com/miladsoft/TronNet/releases</PackageReleaseNotes>
+		<PackageReleaseNotes>Release notes are at https://github.com/QuantozTechnology/Nexutron/releases</PackageReleaseNotes>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>
 
